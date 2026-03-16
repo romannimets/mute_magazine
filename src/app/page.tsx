@@ -1,20 +1,19 @@
 import { ArticleCard } from "@/data/articles";
-import Image from "next/image";
-import Link from "next/link";
 import { headers } from "next/headers";
+import Link from "next/link";
+import HeroSection from "./components/HeroSection";
+import UltimiArticoli from "./components/UltimiArticoli";
 import PapereGrid from "./components/PapereGrid";
+import ManifestoSection from "./components/ManifestoSection";
 
 async function getManifesto(): Promise<ArticleCard | null> {
   try {
     const h = await headers();
     const host = h.get("host");
-
     if (!host) return null;
-
     const res = await fetch(`http://${host}/api/articles/manifesto`, {
       cache: "no-store",
     });
-
     if (!res.ok) return null;
     return res.json();
   } catch (err) {
@@ -28,55 +27,41 @@ export default async function Home() {
 
   return (
     <main style={{ background: "#fff" }}>
-      {/* Papere Grid */}
-      <PapereGrid />
+      {/* 1. Hero: immagine fissa + fuchsia con testo scroll-driven */}
+      <HeroSection />
 
-      {/* Ticker */}
+      {/* 2. Ultimi articoli carousel */}
+      <UltimiArticoli />
+
+      {/* 3. link a tutti gli articoli */}
       <Link
         href="/ultimi-articoli"
         style={{ display: "block", textDecoration: "none" }}
       >
-        <div className="ticker">
-          {[0, 1, 2, 3].map((row) => (
-            <div
-              key={row}
-              className={`ticker__track ticker__track--${row}`}
-              aria-hidden="true"
-            >
-              {Array.from({ length: 10 }).map((_, idx) => (
-                <span key={`${row}-${idx}`}>ULTIMI ARTICOLI&nbsp;—&nbsp;</span>
-              ))}
-            </div>
-          ))}
-        </div>
       </Link>
 
-      {/* Manifesto */}
-      <section className="manifesto">
-        <div className="manifesto__title">Manifesto</div>
-
-        <div className="manifesto__container">
-          <div className="manifesto__content">
-            <div className="manifesto__marquee">
-              <div className="manifesto__marquee-inner">
-                <p>{manifesto?.content ?? "Manifesto non disponibile"}</p>
-                <p>{manifesto?.content ?? "Manifesto non disponibile"}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="manifesto__image">
-            <Image
-              src="/Screenshot 2025-12-04 alle 11.01.08.png"
-              alt="Mute manifesto illustration"
-              fill
-              sizes="(max-width: 768px) 100vw, 40vw"
-              style={{ objectFit: "contain" }}
-              priority
-            />
-          </div>
-        </div>
+      {/* 4. Categorie */}
+      <section style={{ paddingTop: "clamp(40px, 7vw, 64px)" }}>
+        <h2
+          style={{
+            textAlign: "center",
+            fontSize: "clamp(11px, 2vw, 13px)",
+            fontWeight: 700,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "#aaa",
+            marginBottom: "clamp(24px, 4vw, 40px)",
+          }}
+        >
+          Categorie
+        </h2>
+        <PapereGrid />
       </section>
+
+      {/* 5. Manifesto */}
+      <ManifestoSection
+        content={manifesto?.content ?? "Manifesto non disponibile"}
+      />
     </main>
   );
 }

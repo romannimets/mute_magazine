@@ -4,11 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-const papere = [
-    { slug: "cultura", label: "Cultura", image: "/papera_cultura.png" },
-    { slug: "societa", label: "Società", image: "/papera_societa.png" },
-    { slug: "riflessioni", label: "Riflessioni", image: "/papera_riflessioni.png" },
-    { slug: "curiosita", label: "Curiosità", image: "/papera_curiosita.png" },
+const categories = [
+    { slug: "risonanze", label: "Risonanze", image: "/risonanze.png" },
+    { slug: "voci", label: "Voci", image: "/voci.png" },
+    { slug: "sottofondo", label: "Sottofondo", image: "/sottofondo.png" },
 ];
 
 export default function PapereGrid() {
@@ -17,58 +16,69 @@ export default function PapereGrid() {
     return (
         <section
             style={{
-                display: "flex",
-                alignItems: "flex-start",
-                justifyContent: "center",
-                paddingTop: "clamp(40px, 7vw, 56px)",
-                paddingBottom: "clamp(16px, 4vw, 24px)",
-                paddingLeft: "clamp(16px, 4vw, 40px)",
-                paddingRight: "clamp(16px, 4vw, 40px)",
+                paddingLeft: "clamp(16px, 6vw, 64px)",
+                paddingRight: "clamp(16px, 6vw, 64px)",
+                paddingBottom: "clamp(40px, 7vw, 72px)",
             }}
         >
             <div
-                className="papere-grid"
                 style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: "clamp(12px, 3vw, 32px)",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: "clamp(16px, 3.5vw, 40px)",
                     width: "100%",
-                    maxWidth: 1100,
+                    maxWidth: 900,
+                    margin: "0 auto",
                 }}
             >
-                {papere.map((papera, index) => (
+                {categories.map((category, index) => (
                     <Link
-                        key={papera.slug}
-                        href={`/articoli/${papera.slug}`}
+                        key={category.slug}
+                        href={`/articoli/${category.slug}`}
                         style={{
                             textAlign: "center",
                             textDecoration: "none",
                             color: "#111",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: "clamp(8px, 1.5vw, 12px)",
+                            transform: hoveredIndex === index ? "scale(1.04)" : "scale(1)",
                             transition: "transform 0.2s ease",
-                            transform: hoveredIndex === index ? "scale(1.05)" : "scale(1)",
                         }}
                         onMouseEnter={() => setHoveredIndex(index)}
                         onMouseLeave={() => setHoveredIndex(null)}
                     >
+                        {/* Immagine quadrata, angoli al vivo, no bordi, no sfondo */}
                         <div
                             style={{
                                 position: "relative",
                                 width: "100%",
-                                height: "clamp(120px, 30vw, 200px)",
-                                marginBottom: "clamp(4px, 1vw, 8px)",
+                                aspectRatio: "1 / 1",
+                                overflow: "hidden",
                             }}
                         >
                             <Image
-                                src={papera.image}
-                                alt={`papera ${papera.label}`}
+                                src={category.image}
+                                alt={category.label}
                                 fill
-                                sizes="(max-width: 600px) 50vw, 25vw"
+                                sizes="(max-width: 600px) 30vw, (max-width: 1200px) 22vw, 280px"
                                 style={{ objectFit: "contain" }}
                                 priority
                             />
                         </div>
-                        <span style={{ fontSize: "clamp(11px, 2.5vw, 14px)", fontWeight: 600, whiteSpace: "nowrap" }}>
-                            {papera.label}
+
+                        {/* Nome categoria */}
+                        <span
+                            style={{
+                                fontSize: "clamp(13px, 2.2vw, 18px)",
+                                fontWeight: 700,
+                                color: "#111",
+                                fontFamily: "var(--font-mattone), Arial, sans-serif",
+                                letterSpacing: "-0.01em",
+                            }}
+                        >
+                            {category.label}
                         </span>
                     </Link>
                 ))}

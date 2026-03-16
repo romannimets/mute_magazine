@@ -11,10 +11,9 @@ const buttonStyle = {
 };
 
 const categories = [
-  { path: "/articoli/cultura", label: "Cultura" },
-  { path: "/articoli/societa", label: "Società" },
-  { path: "/articoli/riflessioni", label: "Riflessioni" },
-  { path: "/articoli/curiosita", label: "Curiosità" },
+  { path: "/articoli/voci", label: "Risonanze" },
+  { path: "/articoli/risonanze", label: "Risonanze" },
+  { path: "/articoli/sottofondo", label: "Sottofondo" },
 ];
 
 export default function Navbar() {
