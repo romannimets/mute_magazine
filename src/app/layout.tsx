@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 
 // Rimosso Geist (non funziona su Next.js 13)
 // Usato solo il font locale
@@ -37,6 +38,7 @@ export default function RootLayout({
   return (
     <html lang="it">
       <body className={`${mattone.variable} ${systemFont.variable}`}>
+        <ScrollToTop />
         <Navbar />
         {children}
         <Footer />

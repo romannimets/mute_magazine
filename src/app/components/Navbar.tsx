@@ -11,9 +11,10 @@ const buttonStyle = {
 };
 
 const categories = [
-  { path: "/articoli/voci", label: "Risonanze" },
   { path: "/articoli/risonanze", label: "Risonanze" },
+  { path: "/articoli/voci", label: "Voci" },
   { path: "/articoli/sottofondo", label: "Sottofondo" },
+  { path: "/ultimi-articoli", label: "Tutti" },
 ];
 
 export default function Navbar() {

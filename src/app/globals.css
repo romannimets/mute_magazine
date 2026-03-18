@@ -202,11 +202,230 @@ a {
   }
 }
 
+
+/* =============================================
+   NAVBAR — sempre visibile (sticky)
+   ============================================= */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
 /* =============================================
    DARK MODE
    ============================================= */
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
+  }
+}
+
+/* =============================================
+   FOOTER
+   ============================================= */
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-mattone), Arial, Helvetica, sans-serif;
+}
+
+/* ── Banda gialla ── */
+.footer__yellow {
+  background: #FFFF00;
+  padding: clamp(18px, 3.5vw, 28px) clamp(20px, 5vw, 56px);
+}
+
+/*
+  Tre colonne sulla stessa riga:
+  labels | values | newsletter
+  Sul desktop labels occupa ~50% così values parte dal centro.
+*/
+.footer__yellow-inner {
+  display: flex;
+  align-items: flex-end;
+  /* tutto allineato al fondo */
+  gap: clamp(20px, 4vw, 56px);
+  width: 100%;
+}
+
+.footer__labels,
+.footer__values {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1.2vw, 10px);
+  flex-shrink: 0;
+}
+
+.footer__labels span,
+.footer__values span {
+  font-size: clamp(12px, 1.8vw, 15px);
+  line-height: 1.4;
+  color: #000;
+  white-space: nowrap;
+  min-height: 1.4em;
+  display: flex;
+  align-items: center;
+}
+
+.footer__labels span {
+  font-weight: 400;
+}
+
+.footer__values span {
+  font-weight: 700;
+}
+
+/* Newsletter spinge a destra */
+.footer__newsletter {
+  margin-left: auto;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 2px;
+}
+
+.footer__newsletter-link {
+  font-size: clamp(11px, 1.6vw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #000;
+  text-decoration: none;
+  border-bottom: 1.5px solid #000;
+  padding-bottom: 2px;
+  white-space: nowrap;
+}
+
+/* Desktop: labels occupa metà → values parte dal centro */
+@media (min-width: 601px) {
+  .footer__labels {
+    flex: 0 0 50%;
+  }
+}
+
+/* ── Banda nera ── */
+.footer__black {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(20px, 4vw, 48px);
+  padding: clamp(24px, 4.5vw, 44px) clamp(20px, 5vw, 56px);
+  min-height: clamp(100px, 20vw, 180px);
+}
+
+.footer__logo {
+  height: clamp(90px, 10vw, 90px);
+  width: auto;
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Desktop: logo occupa metà sinistra */
+@media (min-width: 601px) {
+  .footer__logo {
+    flex: 0 0 50%;
+    height: clamp(90px, 10vw, 90px);
+    width: auto;
+  }
+}
+
+.footer__collab {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1.2vw, 10px);
+  text-align: right;
+  color: #fff;
+}
+
+.footer__collab-title {
+  font-size: clamp(13px, 1.8vw, 19px);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.footer__collab-body {
+  font-size: clamp(11px, 1.4vw, 14px);
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+  color: #ccc;
+}
+
+.footer__collab-link {
+  color: #FFFF00;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer__tagline {
+  font-size: clamp(10px, 1.3vw, 13px);
+  font-weight: 400;
+  color: #666;
+  font-style: italic;
+  margin: 0;
+}
+
+/* ── Striscia legal ── */
+.footer__legal {
+  background: #fff;
+  padding: clamp(8px, 1.5vw, 12px) clamp(20px, 5vw, 56px);
+  border-top: 1px solid #e8e8e8;
+}
+
+.footer__legal p {
+  font-size: clamp(7px, 1vw, 10px);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  color: #888;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Mobile (≤600px) ── */
+@media (max-width: 600px) {
+
+  /* Gialla: tre colonne diventano due righe
+     riga 1: labels + values
+     riga 2: newsletter a destra */
+  .footer__yellow-inner {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .footer__labels {
+    flex: 0 0 auto;
+  }
+
+  .footer__values {
+    flex: 0 0 auto;
+    max-width: 55%;
+  }
+
+  .footer__newsletter {
+    flex: 0 0 100%;
+    /* va a capo */
+    justify-content: flex-end;
+    margin-left: 0;
+    margin-top: clamp(10px, 3vw, 16px);
+  }
+
+  /* Nera: logo + collab fianco a fianco */
+  .footer__black {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .footer__logo {
+    flex: none;
+  }
+
+  .footer__collab {
+    flex: 1;
+    text-align: right;
+    align-items: flex-end;
   }
 }

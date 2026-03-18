@@ -3,34 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
-const DEFAULT_TEXT = `Questo non è il manifesto, ma frasi a caso per vedere come scorre il testo, 
-Gisuto per vedere quanto ce ne sta,
-E se ho fatto bene questa cosa dell'immagine come sfondo ceh scrolal fincheè non finisce, 
-zioperazioperazioperaziopera.`;
+// px di scroll per far salire completamente il pannello rosa
+const REVEAL_PX = 320;
 
-export default function HeroSection({ text }: { text?: string }) {
+const HERO_TEXT = "Silenzio editoriale per chi è all'ascolto";
+
+export default function HeroSection() {
     const outerRef = useRef<HTMLDivElement>(null);
-    const textRef = useRef<HTMLDivElement>(null);
     const [progress, setProgress] = useState(0);
-    const [maxScroll, setMaxScroll] = useState(0); // px prima che il testo finisca
-    const [panelH, setPanelH] = useState(0);
-
-    // Ricalcola quanto testo può scorrere (textHeight - panelHeight)
-    const recalc = () => {
-        if (!textRef.current) return;
-        const panel = textRef.current.parentElement as HTMLElement;
-        const ph = panel.offsetHeight;
-        const th = textRef.current.scrollHeight;
-        const max = Math.max(0, th - ph);
-        setPanelH(ph);
-        setMaxScroll(max);
-    };
-
-    useEffect(() => {
-        recalc();
-        window.addEventListener("resize", recalc);
-        return () => window.removeEventListener("resize", recalc);
-    }, []);
 
     useEffect(() => {
         const update = () => {
@@ -43,77 +23,72 @@ export default function HeroSection({ text }: { text?: string }) {
         return () => window.removeEventListener("scroll", update);
     }, []);
 
-    // Il testo si ferma esattamente quando arriva alla fine
-    const textTranslate = Math.min(maxScroll, progress);
+    // 0 → 1: pannello sale da sotto (translateY 100% → 0%)
+    const reveal = Math.min(1, progress / REVEAL_PX);
 
-    // Altezza outer = budget di scroll = quanto testo c'è da scorrere
-    // (se maxScroll è 0 al primo render usiamo 400 come placeholder)
-    const budget = maxScroll > 0 ? maxScroll : 400;
+    // Altezza navbar — deve corrispondere al valore in globals.css
+    // (clamp(56px, 12vw, 64px)). Usiamo CSS var se disponibile, altrimenti 64px.
+    // Con top = navbarH il blocco sticky si attiva al primo pixel di scroll,
+    // evitando il micro-movimento iniziale dell'immagine.
+    const NAV_H = "clamp(56px, 12vw, 64px)";
 
     return (
+        /*
+          Outer: height = 100svh + REVEAL_PX
+          top sticky = altezza navbar → sticky scatta subito, immagine ferma da subito.
+        */
         <div
             ref={outerRef}
-            style={{ height: `calc(100svh + ${budget}px)`, margin: 0, padding: 0 }}
+            style={{ height: `calc(100svh + ${REVEAL_PX}px)`, margin: 0, padding: 0 }}
         >
             <div
                 style={{
                     position: "sticky",
-                    top: 0,
-                    height: "100svh",
+                    top: NAV_H,                          // ← era 0, ora = navbar height
+                    height: `calc(100svh - ${NAV_H})`,   // ← compensa per non uscire in basso
                     overflow: "hidden",
                 }}
             >
-                {/* Immagine di sfondo */}
+                {/* Foto di sfondo — rimane ferma */}
                 <Image
                     src="/homepage_top_bkg.jpg"
                     alt="Mute Magazine"
                     fill
                     priority
                     sizes="100vw"
-                    style={{
-                        objectFit: "cover",
-                        objectPosition: "center top",
-                        zIndex: 0,
-                    }}
+                    style={{ objectFit: "cover", objectPosition: "center top", zIndex: 0 }}
                 />
 
-                {/* Pannello fuchsia — ~1/5 dell'altezza viewport, bordi dritti, sempre visibile */}
+                {/* Pannello rosa — sale da sotto, testo statico */}
                 <div
                     style={{
                         position: "absolute",
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        height: "20svh",       // un quinto dell'altezza visibile
-                        minHeight: 120,        // floor su schermi molto bassi
+                        height: "20svh",
+                        minHeight: 120,
                         background: "#FC5EB9",
                         zIndex: 1,
-                        overflow: "hidden",
+                        display: "flex",
+                        alignItems: "center",
+                        transform: `translateY(${(1 - reveal) * 100}%)`,
+                        willChange: "transform",
                     }}
                 >
-                    {/* Contenitore testo scroll-driven */}
-                    <div
-                        ref={textRef}
+                    <p
                         style={{
-                            transform: `translateY(-${textTranslate}px)`,
-                            willChange: "transform",
-                            padding: "clamp(16px, 2.5vh, 32px) clamp(20px, 6vw, 72px) clamp(16px, 2.5vh, 32px)",
+                            color: "#fff",
+                            fontSize: "clamp(13px, 2vw, 22px)",
+                            lineHeight: 1.5,
+                            fontWeight: 600,
+                            fontFamily: "var(--font-mattone), Arial, sans-serif",
+                            margin: 0,
+                            padding: "0 clamp(20px, 6vw, 72px)",
                         }}
                     >
-                        <p
-                            style={{
-                                color: "#fff",
-                                fontSize: "clamp(13px, 2vw, 22px)",
-                                lineHeight: 1.7,
-                                fontWeight: 600,
-                                whiteSpace: "pre-line",
-                                fontFamily: "var(--font-mattone), Arial, sans-serif",
-                                margin: 0,
-                            }}
-                        >
-                            {text || DEFAULT_TEXT}
-                        </p>
-                    </div>
+                        {HERO_TEXT}
+                    </p>
                 </div>
             </div>
         </div>

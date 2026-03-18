@@ -67,18 +67,8 @@ export default function UltimiArticoliPage() {
         padding: "clamp(48px, 10vw, 80px) clamp(16px, 5vw, 48px) clamp(24px, 5vw, 40px)",
         borderBottom: "2px solid #111",
       }}>
-        <p style={{
-          fontSize: "clamp(10px, 2vw, 12px)",
-          fontWeight: 700,
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          color: "#aaa",
-          marginBottom: 12,
-        }}>
-          Tutte le pubblicazioni
-        </p>
         <h1 style={{ fontSize: "clamp(32px, 7vw, 64px)", fontWeight: 700, lineHeight: 1, margin: 0 }}>
-          Ultimi Articoli
+          Tutti gli articoli
         </h1>
       </div>
 
