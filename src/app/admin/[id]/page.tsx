@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArticleCard, categoryLabels, categoryColors } from "@/data/articles";
-import Editor, { deleteCloudinaryMedia } from "@/app/components/Editor";
+import Editor from "@/app/components/Editor";
 import RelatedArticlesPicker from "@/app/components/RelatedArticlesPicker";
-
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+import CoverPicker from "@/app/components/CoverPicker";
 
 export default function AdminEdit() {
     const { id } = useParams();
@@ -14,12 +13,9 @@ export default function AdminEdit() {
 
     const [article, setArticle] = useState<ArticleCard | null>(null);
     const [loading, setLoading] = useState(false);
-    const [uploadingCover, setUploadingCover] = useState(false);
     const [content, setContent] = useState<any>(null);
     const [editorKey, setEditorKey] = useState(0);
-    const [coverPreview, setCoverPreview] = useState<string | null>(null);
-    const [oldCoverUrl, setOldCoverUrl] = useState("");
-    const [newCoverUrl, setNewCoverUrl] = useState("");
+    const [coverUrl, setCoverUrl] = useState("");
     const [isLoadingArticle, setIsLoadingArticle] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [relatedArticles, setRelatedArticles] = useState<ArticleCard[]>([]);
@@ -32,11 +28,11 @@ export default function AdminEdit() {
                 const res = await fetch(`/api/articles/${id}`);
                 if (!res.ok) throw new Error();
                 const data: ArticleCard = await res.json();
+
                 setArticle(data);
-                setOldCoverUrl(data.cover || "");
+                setCoverUrl(data.cover || "");
                 setSelectedCategory(data.category || "");
 
-                // Carica articoli correlati salvati
                 if (data.relatedArticles?.length) {
                     const loaded = await Promise.all(
                         data.relatedArticles.map((rid) =>
@@ -47,41 +43,23 @@ export default function AdminEdit() {
                 }
 
                 try {
-                    const parsed = typeof data.content === "string" ? JSON.parse(data.content) : data.content;
+                    const parsed = typeof data.content === "string"
+                        ? JSON.parse(data.content)
+                        : data.content;
                     setContent(parsed);
                 } catch { setContent({ blocks: [] }); }
+
                 setEditorKey((k) => k + 1);
             } catch { alert("Errore caricamento articolo"); }
             finally { setIsLoadingArticle(false); }
         })();
     }, [id]);
 
-    const handleCoverChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !file.type.startsWith("image/") || file.size > MAX_IMAGE_SIZE) return;
-        if (newCoverUrl) await deleteCloudinaryMedia(newCoverUrl);
-        const reader = new FileReader();
-        reader.onloadend = () => setCoverPreview(reader.result as string);
-        reader.readAsDataURL(file);
-        setUploadingCover(true);
-        try {
-            const fd = new FormData(); fd.append("file", file);
-            const res = await fetch("/api/upload", { method: "POST", body: fd });
-            const data = await res.json();
-            setNewCoverUrl(data.url);
-        } finally { setUploadingCover(false); }
-    };
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         try {
             const form = new FormData(e.currentTarget);
-            let finalCoverUrl = oldCoverUrl;
-            if (newCoverUrl) {
-                if (oldCoverUrl && oldCoverUrl !== newCoverUrl) await deleteCloudinaryMedia(oldCoverUrl);
-                finalCoverUrl = newCoverUrl;
-            }
             const res = await fetch(`/api/articles/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -90,7 +68,7 @@ export default function AdminEdit() {
                     subtitle: form.get("subtitle"),
                     author: form.get("author"),
                     category: form.get("category"),
-                    cover: finalCoverUrl,
+                    cover: coverUrl,
                     content,
                     relatedArticles: relatedArticles.map((a) => a.id),
                 }),
@@ -101,11 +79,12 @@ export default function AdminEdit() {
         finally { setLoading(false); }
     };
 
-    if (isLoadingArticle) return <div style={{ padding: 64, textAlign: "center" }}>Caricamento...</div>;
-    if (!article) return <p style={{ padding: 32 }}>Articolo non trovato</p>;
-
-    const previewUrl = coverPreview || newCoverUrl || oldCoverUrl;
-    const overlayColor = categoryColors[selectedCategory] ?? "#ccc";
+    if (isLoadingArticle) {
+        return <div style={{ padding: 64, textAlign: "center", color: "#aaa" }}>Caricamento...</div>;
+    }
+    if (!article) {
+        return <p style={{ padding: 32 }}>Articolo non trovato</p>;
+    }
 
     return (
         <main style={{ padding: "clamp(24px, 6vw, 48px)", maxWidth: 720, margin: "0 auto" }}>
@@ -116,37 +95,25 @@ export default function AdminEdit() {
                 <input name="subtitle" defaultValue={article.subtitle} placeholder="Sottotitolo" style={inp} />
                 <input name="author" defaultValue={article.author} placeholder="Autore" required style={inp} />
 
-                <select name="category" required defaultValue={article.category}
-                    onChange={(e) => setSelectedCategory(e.target.value)} style={inp}>
+                <select
+                    name="category"
+                    required
+                    defaultValue={article.category}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    style={inp}
+                >
                     <option value="" disabled>Seleziona categoria</option>
                     {Object.entries(categoryLabels).map(([k, v]) => (
                         <option key={k} value={k}>{v}</option>
                     ))}
                 </select>
 
-                {/* Cover con overlay */}
-                <div>
-                    <label style={{ fontWeight: 600, display: "block", marginBottom: 8, fontSize: 14 }}>
-                        Copertina (max 10MB)
-                    </label>
-                    {previewUrl && (
-                        <div style={{ position: "relative", width: "100%", paddingTop: "52%", marginBottom: 10, overflow: "hidden" }}>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={previewUrl} alt="cover" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                            <div style={{ position: "absolute", inset: 0, background: overlayColor, opacity: 0.5, pointerEvents: "none" }} />
-                        </div>
-                    )}
-                    {!coverPreview && (
-                        <input type="file" accept="image/*" onChange={handleCoverChange} disabled={uploadingCover} style={inp} />
-                    )}
-                    {uploadingCover && <p style={{ fontSize: 13, color: "#666" }}>Upload in corso...</p>}
-                    {coverPreview && !uploadingCover && (
-                        <button type="button" onClick={() => { setCoverPreview(null); setNewCoverUrl(""); }}
-                            style={{ marginTop: 6, padding: "5px 12px", background: "#dc3545", color: "#fff", border: "none", cursor: "pointer", fontSize: 13 }}>
-                            Rimuovi nuova copertina
-                        </button>
-                    )}
-                </div>
+                {/* Copertina — upload o URL */}
+                <CoverPicker
+                    currentUrl={coverUrl}
+                    overlayColor={categoryColors[selectedCategory]}
+                    onChange={setCoverUrl}
+                />
 
                 {/* Articoli correlati */}
                 <RelatedArticlesPicker
@@ -155,7 +122,7 @@ export default function AdminEdit() {
                     onRemove={(rid) => setRelatedArticles((prev) => prev.filter((a) => a.id !== rid))}
                 />
 
-                {/* Editor */}
+                {/* Editor contenuto */}
                 <div>
                     <p style={{ fontWeight: 600, marginBottom: 8, fontSize: 14 }}>Contenuto</p>
                     {content !== null && (
@@ -163,8 +130,16 @@ export default function AdminEdit() {
                     )}
                 </div>
 
-                <button type="submit" disabled={loading || uploadingCover || content === null}
-                    style={{ padding: "12px 16px", background: loading ? "#999" : "#111", color: "#fff", border: "none", fontWeight: 600, cursor: loading ? "not-allowed" : "pointer" }}>
+                <button
+                    type="submit"
+                    disabled={loading || content === null}
+                    style={{
+                        padding: "12px 16px",
+                        background: loading ? "#999" : "#111",
+                        color: "#fff", border: "none", fontWeight: 600,
+                        cursor: loading ? "not-allowed" : "pointer",
+                    }}
+                >
                     {loading ? "Salvando..." : "Salva Modifiche"}
                 </button>
             </form>
