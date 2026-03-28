@@ -44,30 +44,83 @@ function VideoPlayer() {
   const playerRef = useRef<any>(null);
   const [muted, setMuted] = useState(true);
   const [ready, setReady] = useState(false);
+  // needsTap: il browser ha bloccato l'autoplay, serve un tap dell'utente
+  const [needsTap, setNeedsTap] = useState(false);
 
   useEffect(() => {
     loadYTScript();
+
     const initPlayer = () => {
       if (!containerRef.current) return;
       const div = document.createElement("div");
       div.style.width = "100%";
       div.style.height = "100%";
       containerRef.current.appendChild(div);
+
       playerRef.current = new (window as any).YT.Player(div, {
         videoId: YOUTUBE_ID,
-        width: "100%", height: "100%",
-        playerVars: { autoplay: 1, mute: 1, loop: 1, playlist: YOUTUBE_ID, controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3, disablekb: 1, fs: 0, playsinline: 1 },
+        width: "100%",
+        height: "100%",
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          loop: 1,
+          playlist: YOUTUBE_ID,
+          controls: 0,
+          modestbranding: 1,
+          rel: 0,
+          iv_load_policy: 3,
+          disablekb: 1,
+          fs: 0,
+          playsinline: 1,
+        },
         events: {
-          onReady: (e: any) => { e.target.playVideo(); setReady(true); },
+          onReady: (e: any) => {
+            e.target.mute();
+            e.target.playVideo();
+            setReady(true);
+          },
+          onStateChange: (e: any) => {
+            const YT = (window as any).YT;
+            // CUED (5) o UNSTARTED (-1) dopo onReady = autoplay bloccato dal browser
+            if (e.data === YT.PlayerState.CUED || e.data === -1) {
+              setNeedsTap(true);
+            }
+            // Appena parte, nascondi l'overlay tap
+            if (e.data === YT.PlayerState.PLAYING) {
+              setNeedsTap(false);
+            }
+          },
         },
       });
     };
-    if ((window as any).YT?.Player) initPlayer();
-    else (window as any).onYouTubeIframeAPIReady = initPlayer;
-    return () => { playerRef.current?.destroy(); };
+
+    // Preserva eventuali callback già registrate (es. più componenti YT sulla stessa pagina)
+    if ((window as any).YT?.Player) {
+      initPlayer();
+    } else {
+      const prev = (window as any).onYouTubeIframeAPIReady;
+      (window as any).onYouTubeIframeAPIReady = () => {
+        prev?.();
+        initPlayer();
+      };
+    }
+
+    return () => {
+      playerRef.current?.destroy();
+    };
   }, []);
 
-  const toggleAudio = () => {
+  const handleTap = () => {
+    const p = playerRef.current;
+    if (!p) return;
+    p.mute();
+    p.playVideo();
+    setNeedsTap(false);
+  };
+
+  const toggleAudio = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const p = playerRef.current;
     if (!p) return;
     if (muted) { p.unMute(); p.setVolume(100); setMuted(false); }
@@ -75,26 +128,87 @@ function VideoPlayer() {
   };
 
   return (
-    <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", background: "#000", border: "1px solid #333" }}>
-      <div ref={containerRef} style={{ position: "absolute", top: "50%", left: "50%", width: "177.77%", height: "100%", transform: "translate(-50%, -50%)" }} />
-      <div style={{ position: "absolute", inset: 0, zIndex: 5 }} />
-      {ready && (
+    <div style={{
+      position: "relative",
+      width: "100%",
+      aspectRatio: "16/9",
+      overflow: "hidden",
+      background: "#000",
+      border: "1px solid #333",
+    }}>
+      {/* Iframe YT: allargato per nascondere la barra logo in basso */}
+      <div
+        ref={containerRef}
+        style={{
+          position: "absolute",
+          top: "50%", left: "50%",
+          width: "177.77%", height: "100%",
+          transform: "translate(-50%, -50%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Overlay tap-to-play — appare solo se il browser ha bloccato l'autoplay */}
+      {needsTap && (
+        <div
+          onClick={handleTap}
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 8,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            background: "rgba(0,0,0,0.35)",
+          }}
+        >
+          {/* Triangolo play */}
+          <div style={{
+            width: 0, height: 0,
+            borderTop: "20px solid transparent",
+            borderBottom: "20px solid transparent",
+            borderLeft: "34px solid rgba(255,255,255,0.85)",
+            marginLeft: 6,
+          }} />
+        </div>
+      )}
+
+      {/* Blocca tap accidentali sull'iframe quando il video sta girando */}
+      {!needsTap && (
+        <div style={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "none" }} />
+      )}
+
+      {/* Bottone audio — visibile solo dopo che il video è partito */}
+      {ready && !needsTap && (
         <button
           onClick={toggleAudio}
           aria-label={muted ? "Attiva audio" : "Disattiva audio"}
-          style={{ position: "absolute", bottom: 14, left: 14, zIndex: 10, background: "rgba(0,0,0,0.45)", border: "1px solid rgba(255,255,255,0.18)", width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", padding: 0, opacity: 0.45, transition: "opacity 0.2s", WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.45")}
+          style={{
+            position: "absolute", bottom: 14, left: 14, zIndex: 10,
+            background: "rgba(0,0,0,0.45)",
+            border: "1px solid rgba(255,255,255,0.18)",
+            width: 34, height: 34,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", padding: 0, opacity: 0.45,
+            transition: "opacity 0.2s",
+            WebkitTapHighlightColor: "transparent",
+            touchAction: "manipulation",
+          }}
+          onMouseEnter={e => (e.currentTarget.style.opacity = "0.9")}
+          onMouseLeave={e => (e.currentTarget.style.opacity = "0.45")}
         >
           {muted ? (
-            <svg viewBox="0 0 24 24" width="15" height="15" stroke="#fff" fill="none" strokeWidth="2">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="#fff" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
             </svg>
           ) : (
-            <svg viewBox="0 0 24 24" width="15" height="15" stroke="#fff" fill="none" strokeWidth="2">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="#fff" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
             </svg>
           )}
         </button>
@@ -105,7 +219,6 @@ function VideoPlayer() {
 
 export default function About() {
   return (
-    /* sfondo nero uniforme su tutta la pagina — nessun flash bianco */
     <main style={{ background: "#0a0a0a" }}>
 
       {/* ── SEZIONE NERA ── */}
@@ -123,15 +236,13 @@ export default function About() {
 
         <VideoPlayer />
 
-        {/* Desktop: testo allineato a sx, 36pt, larghezza piena */}
         <p style={{
           ...G,
-          fontSize: "clamp(18px, 3vw, 36px)",  /* 36pt su desktop */
+          fontSize: "clamp(18px, 3vw, 36px)",
           lineHeight: 1.6,
           margin: 0,
           color: "#fff",
           fontWeight: 400,
-          /* nessun maxWidth → arriva fino a destra */
           textAlign: "left",
         }}>
           <strong style={{ fontWeight: 700 }}>Mute Rivista</strong>{" "}
@@ -171,7 +282,6 @@ export default function About() {
               <h3 style={{ ...M, fontSize: "clamp(20px, 3.5vw, 32px)", fontWeight: 700, margin: 0 }}>
                 {muter.name}
               </h3>
-              {/* Bio: 36pt su desktop, allineato a sx */}
               <p style={{
                 ...G,
                 fontSize: "clamp(15px, 2.5vw, 36px)",
@@ -197,7 +307,7 @@ export default function About() {
       <section style={{
         background: "#e78d1a",
         display: "flex",
-        justifyContent: "flex-start", /* allineato a sx */
+        justifyContent: "flex-start",
         padding: `clamp(28px, 5vw, 48px) ${SECTION_PAD}`,
       }}>
         <p style={{

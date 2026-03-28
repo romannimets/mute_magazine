@@ -78,19 +78,6 @@ export default function ArticoloDettaglio() {
           {article.title}
         </h1>
 
-        {article.subtitle && (
-          <p style={{
-            fontSize: "clamp(16px, 3.5vw, 24px)",
-            color: "#555",
-            lineHeight: 1.5,
-            margin: "0 auto clamp(20px, 4vw, 32px)",
-            maxWidth: 780,
-            fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
-          }}>
-            {article.subtitle}
-          </p>
-        )}
-
         {/* Meta: categoria, autore, data, lettura — centrati, nessun bordo */}
         <div style={{
           display: "flex",
@@ -239,21 +226,7 @@ export default function ArticoloDettaglio() {
                       } as React.CSSProperties}>
                         {rel.title}
                       </h3>
-                      {rel.subtitle && (
-                        <p style={{
-                          fontSize: "clamp(11px, 2vw, 14px)",
-                          color: "#666",
-                          lineHeight: 1.5,
-                          margin: 0,
-                          fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                        } as React.CSSProperties}>
-                          {rel.subtitle}
-                        </p>
-                      )}
+
                     </div>
 
                     {/* Bottom: autore / data / lettura + icona */}

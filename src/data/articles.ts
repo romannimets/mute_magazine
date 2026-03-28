@@ -2,7 +2,7 @@ export type ArticleCard = {
   _id: string;
   id: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   author: string;
   date: string;
   cover: string;

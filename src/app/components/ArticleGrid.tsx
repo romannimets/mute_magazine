@@ -32,7 +32,7 @@ export default function ArticleGrid({ category }: Props) {
       .finally(() => setLoading(false));
   }, [category]);
 
-  const titleColor = category === "voci" ? "#fff" : "#000";
+  const titleColor = "#000";
   const label = CATEGORY_LABELS[category] ?? category;
 
   return (
@@ -98,15 +98,6 @@ export default function ArticleGrid({ category }: Props) {
                   }}>
                     {article.title}
                   </h2>
-                  <p style={{
-                    margin: "0 0 clamp(12px, 2.5vw, 18px)",
-                    color: "#555",
-                    fontSize: "clamp(14px, 3.5vw, 17px)",
-                    lineHeight: 1.7,
-                    fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
-                  }}>
-                    {article.subtitle}
-                  </p>
                   <div style={{
                     display: "flex",
                     justifyContent: "space-between",

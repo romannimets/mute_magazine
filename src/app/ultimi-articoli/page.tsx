@@ -20,6 +20,14 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 const PAGE_SIZE = 12;
 
+const G: React.CSSProperties = {
+  fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
+};
+
+const M: React.CSSProperties = {
+  fontFamily: "var(--font-mattone), Arial, sans-serif",
+};
+
 function formatDate(dateStr: string): string {
   try {
     return new Date(dateStr).toLocaleDateString("it-IT", {
@@ -61,140 +69,134 @@ export default function UltimiArticoliPage() {
         padding: "clamp(48px, 10vw, 80px) clamp(16px, 5vw, 48px) clamp(24px, 5vw, 40px)",
         borderBottom: "2px solid #111",
       }}>
-        <h1 style={{ fontSize: "clamp(32px, 7vw, 64px)", fontWeight: 700, lineHeight: 1, margin: 0 }}>
+        <h1 style={{
+          ...M,
+          fontSize: "clamp(32px, 7vw, 64px)",
+          fontWeight: 700,
+          lineHeight: 1,
+          margin: 0,
+        }}>
           Tutti gli articoli
         </h1>
       </div>
 
-      {/* Lista articoli — full width, angoli vivi, separatore orizzontale */}
+      {/* Lista */}
       <div style={{ display: "flex", flexDirection: "column" }}>
 
         {loading && (
-          <p style={{ color: "#aaa", padding: "40px clamp(16px,5vw,48px)" }}>Caricamento...</p>
+          <p style={{ ...G, color: "#aaa", padding: "40px clamp(16px,5vw,48px)" }}>
+            Caricamento...
+          </p>
         )}
 
         {!loading && visible.length === 0 && (
-          <p style={{ color: "#aaa", padding: "40px clamp(16px,5vw,48px)" }}>Nessun articolo trovato.</p>
+          <p style={{ ...G, color: "#aaa", padding: "40px clamp(16px,5vw,48px)" }}>
+            Nessun articolo trovato.
+          </p>
         )}
 
-        {visible.map((article, idx) => {
-          return (
-            <Link
-              key={article.id}
-              href={`/articoli/${article.category}/${article.id}`}
-              style={{
-                textDecoration: "none",
-                color: "inherit",
-                display: "block",
-                borderBottom: "1px solid #f0f0f0",
-              }}
-            >
-              <article style={{ display: "flex", flexDirection: "column" }}>
+        {visible.map((article) => (
+          <Link
+            key={article.id}
+            href={`/articoli/${article.category}/${article.id}`}
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              display: "block",
+              borderBottom: "1px solid #f0f0f0",
+            }}
+          >
+            <article style={{ display: "flex", flexDirection: "column" }}>
 
-                {/* Immagine copertina full-width + overlay */}
-                <div style={{
-                  position: "relative",
-                  width: "100%",
-                  paddingTop: "45%",
-                  overflow: "hidden",
+              {/* Immagine */}
+              <div style={{
+                position: "relative",
+                width: "100%",
+                paddingTop: "45%",
+                overflow: "hidden",
+              }}>
+                {article.cover ? (
+                  <Image
+                    src={article.cover}
+                    alt={article.title}
+                    fill
+                    sizes="100vw"
+                    style={{ objectFit: "cover" }}
+                  />
+                ) : (
+                  <div style={{ position: "absolute", inset: 0, background: "#e8e8e8" }} />
+                )}
+              </div>
+
+              {/* Testo */}
+              <div style={{
+                padding: "clamp(14px, 3vw, 28px) clamp(16px, 5vw, 48px) clamp(16px, 3.5vw, 28px)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "clamp(6px, 1.5vw, 10px)",
+              }}>
+                <h2 style={{
+                  ...M,
+                  margin: 0,
+                  fontSize: "clamp(20px, 4.5vw, 36px)",
+                  fontWeight: 700,
+                  lineHeight: 1.2,
                 }}>
-                  {article.cover ? (
-                    <Image
-                      src={article.cover}
-                      alt={article.title}
-                      fill
-                      sizes="100vw"
-                      style={{ objectFit: "cover" }}
-                    />
-                  ) : (
-                    <div style={{ position: "absolute", inset: 0, background: "#e8e8e8" }} />
-                  )}
-                  {/* Overlay colore piatto */}
-                  {
-                    <div style={{
-                      position: "absolute",
-                      inset: 0,
-                      opacity: 0.48,
-                      pointerEvents: "none",
-                    }} />
-                  }
-                </div>
+                  {article.title}
+                </h2>
 
-                {/* Testo — padding laterale ma niente max-width */}
+                <span style={{
+                  ...G,
+                  fontSize: "clamp(11px, 2vw, 13px)",
+                  color: "#777"
+                }}>
+                  {article.author}
+                </span>
+
                 <div style={{
-                  padding: "clamp(14px, 3vw, 28px) clamp(16px, 5vw, 48px) clamp(16px, 3.5vw, 28px)",
                   display: "flex",
-                  flexDirection: "column",
-                  gap: "clamp(6px, 1.5vw, 10px)",
+                  alignItems: "flex-end",
+                  justifyContent: "space-between",
+                  marginTop: "clamp(4px, 1vw, 8px)",
                 }}>
-                  <h2 style={{
-                    margin: 0,
-                    fontSize: "clamp(20px, 4.5vw, 36px)",
-                    fontWeight: 700,
-                    lineHeight: 1.2,
-                  }}>
-                    {article.title}
-                  </h2>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                    <span style={{
+                      ...G,
+                      fontSize: "clamp(10px, 2vw, 12px)",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
+                    }}>
+                      {CATEGORY_LABELS[article.category] ?? article.category}
+                    </span>
 
-                  {article.subtitle && (
-                    <p style={{
-                      margin: 0,
-                      fontSize: "clamp(13px, 2.5vw, 16px)",
-                      color: "#555",
-                      lineHeight: 1.5,
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                    } as React.CSSProperties}>
-                      {article.subtitle}
-                    </p>
-                  )}
-
-                  <span style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "#777" }}>
-                    {article.author}
-                  </span>
-
-                  {/* Bottom row: categoria+data sx — icona dx */}
-                  <div style={{
-                    display: "flex",
-                    alignItems: "flex-end",
-                    justifyContent: "space-between",
-                    marginTop: "clamp(4px, 1vw, 8px)",
-                  }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                      <span style={{
-                        fontSize: "clamp(10px, 2vw, 12px)",
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.06em",
-                      }}>
-                        {CATEGORY_LABELS[article.category] ?? article.category}
-                      </span>
-                      <span style={{ fontSize: "clamp(9px, 1.8vw, 11px)", color: "#aaa" }}>
-                        {formatDate(article.date)}
-                      </span>
-                    </div>
-
-                    {CATEGORY_ICONS[article.category] && (
-                      <Image
-                        src={CATEGORY_ICONS[article.category]}
-                        alt={article.category}
-                        width={36}
-                        height={36}
-                        style={{ objectFit: "contain", flexShrink: 0 }}
-                      />
-                    )}
+                    <span style={{
+                      ...G,
+                      fontSize: "clamp(9px, 1.8vw, 11px)",
+                      color: "#aaa"
+                    }}>
+                      {formatDate(article.date)}
+                    </span>
                   </div>
-                </div>
 
-              </article>
-            </Link>
-          );
-        })}
+                  {CATEGORY_ICONS[article.category] && (
+                    <Image
+                      src={CATEGORY_ICONS[article.category]}
+                      alt={article.category}
+                      width={36}
+                      height={36}
+                      style={{ objectFit: "contain", flexShrink: 0 }}
+                    />
+                  )}
+                </div>
+              </div>
+
+            </article>
+          </Link>
+        ))}
       </div>
 
-      {/* Carica altri / Fine */}
+      {/* Load more */}
       <div style={{
         padding: "clamp(24px, 5vw, 48px) clamp(16px, 5vw, 48px)",
         display: "flex",
@@ -204,6 +206,7 @@ export default function UltimiArticoliPage() {
           <button
             onClick={() => setPage((p) => p + 1)}
             style={{
+              ...M,
               padding: "clamp(12px, 2.5vw, 16px) clamp(32px, 6vw, 56px)",
               background: "#111",
               color: "#fff",
@@ -213,7 +216,6 @@ export default function UltimiArticoliPage() {
               letterSpacing: "0.1em",
               textTransform: "uppercase",
               cursor: "pointer",
-              fontFamily: "var(--font-mattone), Arial, sans-serif",
               transition: "background 0.15s",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "#333")}
@@ -224,6 +226,7 @@ export default function UltimiArticoliPage() {
         ) : (
           articles.length > 0 && (
             <p style={{
+              ...G,
               color: "#ccc",
               fontSize: "clamp(11px, 2vw, 13px)",
               fontWeight: 600,

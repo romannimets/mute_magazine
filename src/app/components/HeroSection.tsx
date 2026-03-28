@@ -61,7 +61,7 @@ export default function HeroSection() {
                             fill
                             priority
                             sizes="100vw"
-                            style={{ objectFit: "cover", objectPosition: "center center" }}
+                            style={{ objectFit: "cover", objectPosition: "left center" }}
                         />
                     </div>
                 )}

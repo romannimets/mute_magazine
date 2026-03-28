@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 /**
  * POST /api/articles
  * Crea nuovo articolo
- * Body: { title, subtitle, author, category, cover, content }
+ * Body: { title, subtitle?, author, category, cover, content }
  */
 export async function POST(req: Request) {
   try {

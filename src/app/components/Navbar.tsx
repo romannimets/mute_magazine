@@ -94,7 +94,6 @@ export default function Navbar() {
           if (a.category === "manifesto") return false;
           return (
             a.title?.toLowerCase().includes(q) ||
-            a.subtitle?.toLowerCase().includes(q) ||
             a.author?.toLowerCase().includes(q) ||
             a.category?.toLowerCase().includes(q) ||
             extractText(a.content).includes(q)
@@ -399,11 +398,7 @@ export default function Navbar() {
                             <h3 style={{ fontSize: 16, margin: "0 0 4px", fontWeight: 600, lineHeight: 1.3, color: "#111", fontFamily: "var(--font-mattone), Arial, sans-serif" }}>
                               {highlightText(article.title, searchQuery)}
                             </h3>
-                            {article.subtitle && (
-                              <p style={{ fontSize: 13, margin: "0 0 4px", color: "#666", lineHeight: 1.4, fontFamily: "'EB Garamond', Georgia, serif" }}>
-                                {highlightText(article.subtitle, searchQuery)}
-                              </p>
-                            )}
+                    
                             <div style={{ fontSize: 12, color: "#999", display: "flex", gap: 8, alignItems: "center" }}>
                               <span>{highlightText(article.author, searchQuery)}</span>
                               <span>·</span>
