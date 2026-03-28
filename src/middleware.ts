@@ -43,6 +43,14 @@ export function middleware(req: NextRequest) {
         return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
     }
 
+    // Maintenance mode — blocca tutto tranne admin
+    if (process.env.MAINTENANCE_MODE === 'true') {
+        const isAdmin = pathname.startsWith('/admin') || pathname.startsWith('/api/')
+        if (!isAdmin) {
+            return NextResponse.redirect(new URL('/admin/login', req.url))
+        }
+    }
+
     return NextResponse.redirect(new URL('/admin/login', req.url))
 }
 
