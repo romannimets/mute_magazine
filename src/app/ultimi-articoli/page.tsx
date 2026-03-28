@@ -18,12 +18,6 @@ const CATEGORY_ICONS: Record<string, string> = {
   sottofondo: "/sottofondo.png",
 };
 
-const CATEGORY_COLORS: Record<string, string> = {
-  risonanze: "#FFFF00",
-  voci: "#df1968",
-  sottofondo: "#86DF2C",
-};
-
 const PAGE_SIZE = 12;
 
 function formatDate(dateStr: string): string {
@@ -84,7 +78,6 @@ export default function UltimiArticoliPage() {
         )}
 
         {visible.map((article, idx) => {
-          const color = CATEGORY_COLORS[article.category];
           return (
             <Link
               key={article.id}
@@ -117,15 +110,14 @@ export default function UltimiArticoliPage() {
                     <div style={{ position: "absolute", inset: 0, background: "#e8e8e8" }} />
                   )}
                   {/* Overlay colore piatto */}
-                  {color && (
+                  {
                     <div style={{
                       position: "absolute",
                       inset: 0,
-                      background: color,
                       opacity: 0.48,
                       pointerEvents: "none",
                     }} />
-                  )}
+                  }
                 </div>
 
                 {/* Testo — padding laterale ma niente max-width */}

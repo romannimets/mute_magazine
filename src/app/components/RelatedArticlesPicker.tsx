@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { ArticleCard, categoryColors } from "@/data/articles";
+import { ArticleCard } from "@/data/articles";
 
 interface Props {
     selected: ArticleCard[];
@@ -61,7 +61,7 @@ export default function RelatedArticlesPicker({ selected, onAdd, onRemove }: Pro
                                     <Image src={a.cover} alt={a.title} fill style={{ objectFit: "cover" }} sizes="48px" />
                                     <div style={{
                                         position: "absolute", inset: 0,
-                                        background: categoryColors[a.category] ?? "#ccc",
+                                        background: "#ccc",
                                         opacity: 0.5, pointerEvents: "none",
                                     }} />
                                 </div>
@@ -123,7 +123,7 @@ export default function RelatedArticlesPicker({ selected, onAdd, onRemove }: Pro
                                             <Image src={a.cover} alt="" fill style={{ objectFit: "cover" }} sizes="44px" />
                                             <div style={{
                                                 position: "absolute", inset: 0,
-                                                background: categoryColors[a.category] ?? "#ccc", opacity: 0.5,
+                                                background: "#ccc", opacity: 0.5,
                                             }} />
                                         </div>
                                     )}

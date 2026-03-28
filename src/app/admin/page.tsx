@@ -261,9 +261,20 @@ export default function AdminDashboard() {
             {/* Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32, flexWrap: "wrap", gap: 16 }}>
                 <h1 style={{ fontSize: "clamp(24px, 6vw, 32px)", margin: 0 }}>Gestione articoli</h1>
-                <Link href="/admin/nuovo" style={{ background: "#111", color: "#fff", padding: "10px 20px", borderRadius: 6, fontWeight: 600, fontSize: 14 }}>
-                    + Nuovo Articolo
-                </Link>
+                <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                    <Link href="/admin/impostazioni" style={{ background: "#fff", color: "#111", padding: "10px 16px", border: "1px solid #ddd", borderRadius: 6, fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+                        ⚙️ Impostazioni
+                    </Link>
+                    <button
+                        onClick={async () => { await fetch("/api/admin/logout", { method: "POST" }); window.location.href = "/admin/login"; }}
+                        style={{ background: "#fff", color: "#111", padding: "10px 16px", border: "1px solid #ddd", borderRadius: 6, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}
+                    >
+                        Logout
+                    </button>
+                    <Link href="/admin/nuovo" style={{ background: "#111", color: "#fff", padding: "10px 20px", borderRadius: 6, fontWeight: 600, fontSize: 14 }}>
+                        + Nuovo Articolo
+                    </Link>
+                </div>
             </div>
 
             {/* ── Newsletter (in cima) ── */}

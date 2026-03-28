@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArticleCard } from "@/data/articles";
 import { fetchArticles } from "@/lib/fetchArticles";
+import { readingTime } from "@/lib/readingTime";
 
 const CATEGORY_LABELS: Record<string, string> = {
   risonanze: "Risonanze",
@@ -18,23 +19,12 @@ const CATEGORY_ICONS: Record<string, string> = {
   sottofondo: "/sottofondo.png",
 };
 
-// Colore overlay sull'immagine di copertina
-const CATEGORY_COLORS: Record<string, string> = {
-  risonanze: "#FFFF00",
-  voci: "#df1968",
-  sottofondo: "#86DF2C",
-};
-
 function formatDate(dateStr: string): string {
   try {
     return new Date(dateStr).toLocaleDateString("it-IT", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+      day: "2-digit", month: "2-digit", year: "numeric",
     });
-  } catch {
-    return dateStr;
-  }
+  } catch { return dateStr; }
 }
 
 export default function UltimiArticoli() {
@@ -59,8 +49,7 @@ export default function UltimiArticoli() {
     if (!track || articles.length === 0) return;
     const cardEl = track.children[0] as HTMLElement | undefined;
     if (!cardEl) return;
-    const gap = 16;
-    const cardW = cardEl.offsetWidth + gap;
+    const cardW = cardEl.offsetWidth + 16;
     const idx = Math.round(track.scrollLeft / cardW);
     setActiveIndex(Math.max(0, Math.min(idx, articles.length - 1)));
   }, [articles.length]);
@@ -70,8 +59,7 @@ export default function UltimiArticoli() {
     if (!track) return;
     const cardEl = track.children[0] as HTMLElement | undefined;
     if (!cardEl) return;
-    const cardW = cardEl.offsetWidth + 16;
-    track.scrollTo({ left: index * cardW, behavior: "smooth" });
+    track.scrollTo({ left: index * (cardEl.offsetWidth + 16), behavior: "smooth" });
   };
 
   if (articles.length === 0) return null;
@@ -85,12 +73,18 @@ export default function UltimiArticoli() {
         paddingRight: "clamp(16px, 5vw, 48px)",
         marginBottom: "clamp(20px, 3.5vw, 32px)",
       }}>
-        <h2 style={{ fontSize: "clamp(22px, 4.5vw, 40px)", fontWeight: 700, lineHeight: 1 }}>
+        <h2 style={{
+          fontSize: "clamp(22px, 4.5vw, 40px)",
+          fontWeight: 700,
+          lineHeight: 1,
+          fontFamily: "var(--font-mattone), Arial, sans-serif",
+          color: "#111",
+        }}>
           Ultimi Articoli
         </h2>
       </div>
 
-      {/* Carousel track */}
+      {/* Carousel */}
       <div
         ref={trackRef}
         onScroll={handleScroll}
@@ -107,7 +101,7 @@ export default function UltimiArticoli() {
         }}
       >
         {articles.map((article) => {
-          const color = CATEGORY_COLORS[article.category];
+          const rt = readingTime(article.content);
           return (
             <Link
               key={article.id}
@@ -122,7 +116,7 @@ export default function UltimiArticoli() {
                 color: "#111",
               }}
             >
-              {/* Immagine + overlay colore categoria */}
+              {/* Immagine — nessun overlay, lo mettono loro su Photoshop */}
               <div style={{ position: "relative", width: "100%", paddingTop: "65%", overflow: "hidden", flexShrink: 0 }}>
                 {article.cover ? (
                   <Image
@@ -135,20 +129,9 @@ export default function UltimiArticoli() {
                 ) : (
                   <div style={{ position: "absolute", inset: 0, background: "#e8e8e8" }} />
                 )}
-                {/* Overlay colore */}
-                {color && (
-                  <div style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: color,
-                    opacity: 0.58,
-                    
-                    pointerEvents: "none",
-                  }} />
-                )}
               </div>
 
-              {/* Body card */}
+              {/* Body */}
               <div style={{
                 padding: "clamp(10px, 2vw, 14px)",
                 display: "flex",
@@ -158,11 +141,13 @@ export default function UltimiArticoli() {
                 border: "1px solid #f0f0f0",
                 borderTop: "none",
               }}>
-                {/* Titolo articolo */}
+                {/* Titolo — Mattone */}
                 <span style={{
                   fontSize: "clamp(12px, 2.4vw, 14px)",
                   fontWeight: 700,
                   lineHeight: 1.3,
+                  fontFamily: "var(--font-mattone), Arial, sans-serif",
+                  color: "#111",
                   display: "-webkit-box",
                   WebkitLineClamp: 2,
                   WebkitBoxOrient: "vertical",
@@ -171,8 +156,12 @@ export default function UltimiArticoli() {
                   {article.title}
                 </span>
 
-                {/* Autore */}
-                <span style={{ fontSize: "clamp(10px, 1.8vw, 12px)", color: "#777" }}>
+                {/* Autore — EB Garamond */}
+                <span style={{
+                  fontSize: "clamp(10px, 1.8vw, 12px)",
+                  color: "#777",
+                  fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
+                }}>
                   {article.author}
                 </span>
 
@@ -184,22 +173,28 @@ export default function UltimiArticoli() {
                   marginTop: "auto",
                   paddingTop: "10px",
                 }}>
-                  {/* Categoria + data a sinistra */}
+                  {/* Categoria + data + lettura — EB Garamond */}
                   <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                     <span style={{
                       fontSize: "clamp(10px, 2vw, 12px)",
                       fontWeight: 700,
                       textTransform: "uppercase",
                       letterSpacing: "0.06em",
+                      fontFamily: "var(--font-mattone), Arial, sans-serif",
+                      color: "#111",
                     }}>
                       {CATEGORY_LABELS[article.category] ?? article.category}
                     </span>
-                    <span style={{ fontSize: "clamp(9px, 1.8vw, 11px)", color: "#aaa" }}>
-                      {formatDate(article.date)}
+                    <span style={{
+                      fontSize: "clamp(9px, 1.8vw, 11px)",
+                      color: "#aaa",
+                      fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
+                    }}>
+                      {formatDate(article.date)}{rt ? ` · ${rt}` : ""}
                     </span>
                   </div>
 
-                  {/* Icona categoria a destra */}
+                  {/* Icona categoria */}
                   {CATEGORY_ICONS[article.category] && (
                     <Image
                       src={CATEGORY_ICONS[article.category]}
@@ -220,12 +215,12 @@ export default function UltimiArticoli() {
       <div style={{
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
-        gap: "clamp(20px, 5vw, 40px)",
+        justifyContent: "space-between", /* dots a sx, vedi tutto a dx */
         paddingTop: "clamp(14px, 3vw, 24px)",
         paddingLeft: "clamp(16px, 5vw, 48px)",
         paddingRight: "clamp(16px, 5vw, 48px)",
       }}>
+        {/* Dots */}
         <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
           {articles.map((_, i) => (
             <button
@@ -235,7 +230,6 @@ export default function UltimiArticoli() {
               style={{
                 width: i === activeIndex ? 22 : 8,
                 height: 8,
-                borderRadius: 4,
                 border: "none",
                 background: i === activeIndex ? "#111" : "#ddd",
                 padding: 0,
@@ -246,6 +240,8 @@ export default function UltimiArticoli() {
             />
           ))}
         </div>
+
+        {/* Vedi tutto — destra */}
         <Link href="/ultimi-articoli" style={{
           fontSize: "clamp(11px, 2.2vw, 13px)",
           fontWeight: 700,
@@ -255,6 +251,7 @@ export default function UltimiArticoli() {
           borderBottom: "1px solid #111",
           paddingBottom: "1px",
           whiteSpace: "nowrap",
+          fontFamily: "var(--font-mattone), Arial, sans-serif",
         }}>
           Vedi tutto →
         </Link>

@@ -4,14 +4,13 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArticleCard, categoryColors, categoryIcons, categoryLabels } from "@/data/articles";
+import { ArticleCard, categoryIcons, categoryLabels } from "@/data/articles";
 import EditorRenderer from "@/app/components/EditorRenderer";
+import { readingTime } from "@/lib/readingTime";
 
 function formatDate(d: string) {
   try {
-    return new Date(d).toLocaleDateString("it-IT", {
-      day: "2-digit", month: "long", year: "numeric",
-    });
+    return new Date(d).toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" });
   } catch { return d; }
 }
 
@@ -29,8 +28,6 @@ export default function ArticoloDettaglio() {
         if (!res.ok) throw new Error();
         const data: ArticleCard = await res.json();
         setArticle(data);
-
-        // Carica correlati
         if (data.relatedArticles?.length) {
           const loaded = await Promise.all(
             data.relatedArticles.map((id) =>
@@ -44,92 +41,83 @@ export default function ArticoloDettaglio() {
     })();
   }, [articleId]);
 
-  if (loading) {
-    return (
-      <div style={{ padding: "clamp(48px, 12vw, 96px)", textAlign: "center", color: "#aaa" }}>
-        Caricamento...
-      </div>
-    );
-  }
+  if (loading) return (
+    <div style={{ padding: "clamp(48px, 12vw, 96px)", textAlign: "center", color: "#aaa" }}>
+      Caricamento...
+    </div>
+  );
 
-  if (!article) {
-    return (
-      <div style={{ padding: "clamp(48px, 12vw, 96px)", textAlign: "center" }}>
-        <h1 style={{ fontSize: "clamp(24px, 6vw, 32px)" }}>Articolo non trovato</h1>
-      </div>
-    );
-  }
+  if (!article) return (
+    <div style={{ padding: "clamp(48px, 12vw, 96px)", textAlign: "center" }}>
+      <h1 style={{ fontSize: "clamp(24px, 6vw, 32px)" }}>Articolo non trovato</h1>
+    </div>
+  );
 
-  const color = categoryColors[article.category] ?? "#ccc";
+  const color = "#ccc";
   const icon = categoryIcons[article.category];
   const label = categoryLabels[article.category] ?? article.category;
+  const rt = readingTime(article.content);
 
   return (
     <main style={{ background: "#fff" }}>
 
-      {/* ── Header ── */}
+      {/* ── Header: titolo grandissimo, centrato, larghezza piena ── */}
       <div style={{
-        maxWidth: 700,
-        margin: "0 auto",
-        padding: "clamp(28px, 6vw, 52px) clamp(16px, 4vw, 24px) 0",
+        padding: "clamp(28px, 6vw, 52px) clamp(16px, 5vw, 48px) 0",
+        textAlign: "center",
       }}>
-
         <h1 style={{
-          fontSize: "clamp(26px, 6vw, 48px)",
+          fontSize: "clamp(40px, 10vw, 120px)",
           fontWeight: 700,
-          lineHeight: 1.15,
-          margin: "0 0 clamp(10px, 2vw, 14px)",
+          lineHeight: 1.0,
+          margin: "0 0 clamp(16px, 3vw, 28px)",
           color: "#111",
+          fontFamily: "var(--font-mattone), Arial, sans-serif",
+          wordBreak: "break-word",
         }}>
           {article.title}
         </h1>
 
         {article.subtitle && (
           <p style={{
-            fontSize: "clamp(15px, 3vw, 20px)",
+            fontSize: "clamp(16px, 3.5vw, 24px)",
             color: "#555",
             lineHeight: 1.5,
-            margin: "0 0 clamp(14px, 3vw, 20px)",
+            margin: "0 auto clamp(20px, 4vw, 32px)",
+            maxWidth: 780,
+            fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
           }}>
             {article.subtitle}
           </p>
         )}
 
+        {/* Meta: categoria, autore, data, lettura — centrati, nessun bordo */}
         <div style={{
           display: "flex",
-          justifyContent: "space-between",
+          flexDirection: "column",
           alignItems: "center",
-          borderTop: "1px solid #f0f0f0",
-          borderBottom: "1px solid #f0f0f0",
-          padding: "clamp(10px, 2vw, 14px) 0",
-          marginBottom: "clamp(8px, 2vw, 12px)",
+          gap: "clamp(4px, 1vw, 6px)",
+          marginBottom: "clamp(20px, 4vw, 32px)",
         }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              width: "100%",
-            }}
-          >
-            <span style={{
-              fontSize: "clamp(12px, 2.5vw, 14px)", fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
-              fontWeight: 600, color: "#111"
-            }}>
-              {article.author}
-            </span>
-            <span style={{
-              fontSize: "clamp(11px, 2vw, 13px)", fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
-              color: "#aaa"
-            }}>
-              {formatDate(article.date)}
-            </span>
-          </div>
-
+          <span style={{
+            fontSize: "clamp(13px, 2.5vw, 16px)",
+            fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
+            fontWeight: 600,
+            color: "#111",
+          }}>
+            {article.author}
+          </span>
+          <span style={{
+            fontSize: "clamp(12px, 2vw, 14px)",
+            fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
+            color: "#aaa",
+          }}>
+            {formatDate(article.date)}{rt ? ` · ${rt}` : ""}
+          </span>
         </div>
       </div>
 
-      {/* ── Copertina edge-to-edge con overlay ── */}
+      {/* ── Copertina edge-to-edge — nessun overlay ── */}
       {article.cover && (
         <div style={{ position: "relative", width: "100%", paddingTop: "52%", overflow: "hidden" }}>
           <Image
@@ -140,36 +128,50 @@ export default function ArticoloDettaglio() {
             sizes="100vw"
             style={{ objectFit: "cover" }}
           />
-          <div style={{
-            position: "absolute", inset: 0,
-            background: color, opacity: 0.55,
-            pointerEvents: "none",
-          }} />
         </div>
       )}
-
 
       {/* ── Corpo articolo ── */}
       <EditorRenderer data={article.content} />
 
-      {/* ── Icona categoria bottom-right ── */}
-      {icon && (
-        <div style={{
-          maxWidth: 700,
-          margin: "0 auto",
-          padding: "0 clamp(16px, 4vw, 24px) clamp(32px, 6vw, 56px)",
-          display: "flex",
-          justifyContent: "flex-end",
+      {/* ── Footer articolo: categoria (Mattone sx) + icona (dx) ── */}
+      <div style={{
+        maxWidth: 700,
+        margin: "0 auto",
+        padding: "0 clamp(16px, 4vw, 24px) clamp(32px, 6vw, 56px)",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-end",
+      }}>
+        {/* Categoria allineata a sinistra in basso */}
+        <span style={{
+          fontSize: "clamp(11px, 2vw, 14px)",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.1em",
+          color: "#111",
+          fontFamily: "var(--font-mattone), Arial, sans-serif",
         }}>
-          <Image src={icon} alt={label} width={48} height={48} style={{ objectFit: "contain", opacity: 0.65 }} />
-        </div>
-      )}
+          {label}
+        </span>
+
+        {/* Mascotte — nera, senza opacity/filtro grigio */}
+        {icon && (
+          <Image
+            src={icon}
+            alt={label}
+            width={48}
+            height={48}
+            style={{ objectFit: "contain" }} /* rimosso opacity: 0.65 */
+          />
+        )}
+      </div>
 
       {/* ── Articoli correlati ── */}
       {related.length > 0 && (
         <section style={{
-          borderTop: "1px solid #f0f0f0",
-          padding: "clamp(32px, 6vw, 56px) 0 clamp(40px, 8vw, 72px)",
+          borderTop: `3px solid ${color}`, /* linea colore categoria invece di grigio */
+          padding: "clamp(32px, 6vw, 56px) 0 0",
         }}>
           <h2 style={{
             fontFamily: "var(--font-mattone), Arial, sans-serif",
@@ -177,43 +179,30 @@ export default function ArticoloDettaglio() {
             fontWeight: 700,
             margin: "0 0 clamp(20px, 4vw, 32px)",
             padding: "0 clamp(16px, 5vw, 48px)",
+            color: "#111",
           }}>
             Ti possono piacere anche
           </h2>
 
           <div style={{ display: "flex", flexDirection: "column" }}>
             {related.map((rel) => {
-              const rColor = categoryColors[rel.category] ?? "#ccc";
+              const rColor = "#ccc";
               const rIcon = categoryIcons[rel.category];
               const rLabel = categoryLabels[rel.category] ?? rel.category;
+              const rRt = readingTime(rel.content);
               return (
                 <Link
                   key={rel.id}
                   href={`/articoli/${rel.category}/${rel.id}`}
-                  style={{
-                    display: "flex",
-                    textDecoration: "none",
-                    color: "inherit",
-                    borderBottom: "1px solid #f0f0f0",
-                  }}
+                  style={{ display: "flex", textDecoration: "none", color: "inherit", borderBottom: "1px solid #f0f0f0" }}
                 >
-                  {/* 1/3 — copertina con overlay */}
-                  <div style={{
-                    flex: "0 0 33.33%",
-                    position: "relative",
-                    aspectRatio: "4/3",
-                    overflow: "hidden",
-                  }}>
+                  {/* 1/3 — copertina senza overlay */}
+                  <div style={{ flex: "0 0 33.33%", position: "relative", aspectRatio: "4/3", overflow: "hidden" }}>
                     {rel.cover ? (
-                      <Image src={rel.cover} alt={rel.title} fill sizes="33vw"
-                        style={{ objectFit: "cover" }} />
+                      <Image src={rel.cover} alt={rel.title} fill sizes="33vw" style={{ objectFit: "cover" }} />
                     ) : (
                       <div style={{ position: "absolute", inset: 0, background: "#eee" }} />
                     )}
-                    <div style={{
-                      position: "absolute", inset: 0,
-                      background: rColor, opacity: 0.55, pointerEvents: "none",
-                    }} />
                   </div>
 
                   {/* 2/3 — testo */}
@@ -231,7 +220,8 @@ export default function ArticoloDettaglio() {
                         fontWeight: 700,
                         textTransform: "uppercase",
                         letterSpacing: "0.12em",
-                        color: "#aaa",
+                        color: rColor,
+                        fontFamily: "var(--font-mattone), Arial, sans-serif",
                       }}>
                         {rLabel}
                       </span>
@@ -241,6 +231,7 @@ export default function ArticoloDettaglio() {
                         lineHeight: 1.25,
                         margin: 0,
                         color: "#111",
+                        fontFamily: "var(--font-mattone), Arial, sans-serif",
                         display: "-webkit-box",
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: "vertical",
@@ -252,8 +243,9 @@ export default function ArticoloDettaglio() {
                         <p style={{
                           fontSize: "clamp(11px, 2vw, 14px)",
                           color: "#666",
-                          lineHeight: 1.4,
+                          lineHeight: 1.5,
                           margin: 0,
+                          fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
                           display: "-webkit-box",
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: "vertical",
@@ -264,21 +256,19 @@ export default function ArticoloDettaglio() {
                       )}
                     </div>
 
-                    {/* Bottom: autore/data + icona */}
+                    {/* Bottom: autore / data / lettura + icona */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                        <span style={{ fontSize: "clamp(10px, 1.8vw, 12px)", color: "#888" }}>
+                        <span style={{ fontSize: "clamp(10px, 1.8vw, 12px)", color: "#888", fontFamily: "'EB Garamond', Georgia, serif" }}>
                           {rel.author}
                         </span>
-                        <span style={{ fontSize: "clamp(9px, 1.6vw, 11px)", color: "#bbb" }}>
-                          {new Date(rel.date).toLocaleDateString("it-IT", {
-                            day: "2-digit", month: "2-digit", year: "numeric",
-                          })}
+                        <span style={{ fontSize: "clamp(9px, 1.6vw, 11px)", color: "#bbb", fontFamily: "'EB Garamond', Georgia, serif" }}>
+                          {new Date(rel.date).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                          {rRt ? ` · ${rRt}` : ""}
                         </span>
                       </div>
                       {rIcon && (
-                        <Image src={rIcon} alt={rLabel} width={24} height={24}
-                          style={{ objectFit: "contain", flexShrink: 0 }} />
+                        <Image src={rIcon} alt={rLabel} width={24} height={24} style={{ objectFit: "contain", flexShrink: 0 }} />
                       )}
                     </div>
                   </div>

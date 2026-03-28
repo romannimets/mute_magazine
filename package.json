@@ -14,6 +14,8 @@
     "@editorjs/image": "^2.10.3",
     "@editorjs/list": "^2.0.9",
     "@editorjs/paragraph": "^2.11.7",
+    "bcryptjs": "^2.4.3",
+    "crypto-js": "^4.2.0",
     "mongodb": "^7.0.0",
     "next": "^16.1.6",
     "next-cloudinary": "^6.17.5",
@@ -22,6 +24,8 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/crypto-js": "^4.2.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

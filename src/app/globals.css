@@ -1,24 +1,26 @@
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #111111;
 }
 
+/* ── Forza sempre light mode (il sito è progettato light) ── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #111111;
   }
 }
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light;
+  /* ← forza light su tutti i browser */
 }
 
 html,
 body {
   max-width: 100vw;
   overflow-x: clip;
-  /* clip invece di hidden: non rompe position:sticky */
 }
 
 body {
@@ -41,7 +43,7 @@ a {
 }
 
 /* =============================================
-   SPINNER (usato in varie pagine)
+   SPINNER
    ============================================= */
 @keyframes spin {
   0% {
@@ -69,8 +71,6 @@ a {
 /* =============================================
    ULTIMI ARTICOLI — Carousel (home)
    ============================================= */
-
-/* Nasconde la scrollbar in tutti i browser */
 .ultimi-track::-webkit-scrollbar {
   display: none;
 }
@@ -80,7 +80,6 @@ a {
   scrollbar-width: none;
 }
 
-/* Hover card — leggero lift */
 @media (hover: hover) and (pointer: fine) {
   .ultimi-card:hover {
     transform: translateY(-2px);
@@ -88,7 +87,6 @@ a {
   }
 }
 
-/* Desktop: card più larghe */
 @media (min-width: 768px) {
   .ultimi-card {
     flex: 0 0 clamp(240px, 32vw, 340px) !important;
@@ -105,7 +103,7 @@ a {
    CATEGORIE GRID — 3 colonne anche su mobile
    ============================================= */
 @media (max-width: 767px) {
-  .papere-grid {
+  .lucertoline-grid {
     grid-template-columns: repeat(3, 1fr) !important;
   }
 }
@@ -132,7 +130,7 @@ a {
 }
 
 /* =============================================
-   MANIFESTO — highlight testo (per-riga verde)
+   MANIFESTO — highlight (per-riga verde)
    ============================================= */
 @media (min-width: 768px) {
   .manifesto-highlight {
@@ -202,7 +200,6 @@ a {
   }
 }
 
-
 /* =============================================
    NAVBAR — sempre visibile (sticky)
    ============================================= */
@@ -213,161 +210,45 @@ nav {
 }
 
 /* =============================================
-   DARK MODE
+   SEARCH — angoli vivi (brand identity)
    ============================================= */
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+.search-input,
+.search-dialog {
+  border-radius: 0 !important;
+}
+
+/* Forza angoli vivi su qualsiasi input del sito */
+input,
+select,
+textarea,
+button {
+  border-radius: 0 !important;
 }
 
 /* =============================================
-   FOOTER
+   HERO MARQUEE
    ============================================= */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
 
-.footer {
-  display: flex;
-  flex-direction: column;
-  font-family: var(--font-mattone), Arial, Helvetica, sans-serif;
-}
-
-/* ── Banda gialla ── */
-.footer__yellow {
-  background: #FFFF00;
-  padding: clamp(18px, 3.5vw, 28px) clamp(20px, 5vw, 56px);
-}
-
-/*
-  Tre colonne sulla stessa riga:
-  labels | values | newsletter
-  Sul desktop labels occupa ~50% così values parte dal centro.
-*/
-.footer__yellow-inner {
-  display: flex;
-  align-items: flex-end;
-  /* tutto allineato al fondo */
-  gap: clamp(20px, 4vw, 56px);
-  width: 100%;
-}
-
-.footer__labels,
-.footer__values {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(6px, 1.2vw, 10px);
-  flex-shrink: 0;
-}
-
-.footer__labels span,
-.footer__values span {
-  font-size: clamp(12px, 1.8vw, 15px);
-  line-height: 1.4;
-  color: #000;
-  white-space: nowrap;
-  min-height: 1.4em;
-  display: flex;
-  align-items: center;
-}
-
-.footer__labels span {
-  font-weight: 400;
-}
-
-.footer__values span {
-  font-weight: 700;
-}
-
-/* Newsletter spinge a destra */
-.footer__newsletter {
-  margin-left: auto;
-  display: flex;
-  align-items: flex-end;
-  padding-bottom: 2px;
-}
-
-.footer__newsletter-link {
-  font-size: clamp(11px, 1.6vw, 13px);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #000;
-  text-decoration: none;
-  border-bottom: 1.5px solid #000;
-  padding-bottom: 2px;
-  white-space: nowrap;
-}
-
-/* Desktop: labels occupa metà → values parte dal centro */
-@media (min-width: 601px) {
-  .footer__labels {
-    flex: 0 0 50%;
+  to {
+    transform: translateX(-50%);
   }
 }
 
-/* ── Banda nera ── */
-.footer__black {
-  background: #000;
+.hero-marquee {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: clamp(20px, 4vw, 48px);
-  padding: clamp(24px, 4.5vw, 44px) clamp(20px, 5vw, 56px);
-  min-height: clamp(100px, 20vw, 180px);
+  width: max-content;
+  animation: marquee 18s linear infinite;
+  will-change: transform;
 }
 
-.footer__logo {
-  height: clamp(90px, 10vw, 90px);
-  width: auto;
-  display: block;
-  object-fit: contain;
-  flex-shrink: 0;
+.hero-marquee:hover {
+  animation-play-state: paused;
 }
 
-/* Desktop: logo occupa metà sinistra */
-@media (min-width: 601px) {
-  .footer__logo {
-    flex: 0 0 50%;
-    height: clamp(90px, 10vw, 90px);
-    width: auto;
-  }
-}
-
-.footer__collab {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(6px, 1.2vw, 10px);
-  text-align: right;
-  color: #fff;
-}
-
-.footer__collab-title {
-  font-size: clamp(13px, 1.8vw, 19px);
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 0;
-}
-
-.footer__collab-body {
-  font-size: clamp(11px, 1.4vw, 14px);
-  font-weight: 400;
-  line-height: 1.5;
-  margin: 0;
-  color: #ccc;
-}
-
-.footer__collab-link {
-  color: #FFFF00;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.footer__tagline {
-  font-size: clamp(10px, 1.3vw, 13px);
-  font-weight: 400;
-  color: #666;
-  font-style: italic;
-  margin: 0;
-}
 
 /* ── Striscia legal ── */
 .footer__legal {
@@ -385,47 +266,199 @@ nav {
   margin: 0;
 }
 
-/* ── Mobile (≤600px) ── */
-@media (max-width: 600px) {
+.footer__logo {
+  height: clamp(90px, 10vw, 90px);
+  width: auto;
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
 
-  /* Gialla: tre colonne diventano due righe
-     riga 1: labels + values
-     riga 2: newsletter a destra */
-  .footer__yellow-inner {
-    flex-wrap: wrap;
-    align-items: flex-start;
-  }
-
-  .footer__labels {
-    flex: 0 0 auto;
-  }
-
-  .footer__values {
-    flex: 0 0 auto;
-    max-width: 55%;
-  }
-
-  .footer__newsletter {
-    flex: 0 0 100%;
-    /* va a capo */
-    justify-content: flex-end;
-    margin-left: 0;
-    margin-top: clamp(10px, 3vw, 16px);
-  }
-
-  /* Nera: logo + collab fianco a fianco */
-  .footer__black {
-    flex-direction: row;
-    align-items: center;
-  }
-
+@media (min-width: 601px) {
   .footer__logo {
-    flex: none;
+    flex: 0 0 50%;
+    height: clamp(90px, 10vw, 90px);
+    width: auto;
+  }
+}
+
+/* =============================================
+   FOOTER - REFINED LAYOUT (1/3 - 2/3)
+   ============================================= */
+.footer {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container comune per mantenere l'allineamento */
+.footer__container {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-height: clamp(200px, 30vw, 260px);
+  /* Bande alte uguali */
+}
+
+.footer__spacer,
+.footer__logo-col {
+  flex: 0 0 33.33%;
+  /* Il primo terzo */
+}
+
+.footer__content,
+.footer__collab-col {
+  flex: 0 0 66.66%;
+  /* I due terzi restanti */
+  display: flex;
+  flex-direction: column;
+  padding-left: clamp(10px, 2vw, 20px);
+}
+
+/* --- Banda Gialla --- */
+.footer__yellow {
+  background: #FFFF00;
+  padding: clamp(20px, 4vw, 40px) clamp(16px, 5vw, 56px);
+}
+
+.footer__content {
+  justify-content: center;
+  /* Centrato verticalmente nel giallo */
+  text-align: left;
+}
+
+/* --- Nuova struttura verticale Banda Gialla --- */
+.footer__vertical-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Spazio (riga vuota) tra i blocchi */
+  justify-content: center;
+}
+
+.footer__info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px; /* Spazio minimo tra Etichetta e Valore */
+}
+
+.footer__label {
+  font-weight: 400;
+  font-size: clamp(10px, 1.3vw, 12px);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(0,0,0,0.7);
+}
+
+.footer__value {
+  font-weight: 700;
+  font-size: clamp(13px, 1.8vw, 16px);
+  color: #000;
+}
+
+.footer__newsletter {
+  margin-top: 10px; /* Ulteriore distacco per la newsletter */
+}
+
+/* --- Allineamento Banda Nera (per simmetria) --- */
+.footer__collab-content {
+  /* Assicurati che il padding o gap sia coerente con sopra */
+  gap: 15px; 
+}
+
+.footer__info-group {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.footer__labels,
+.footer__values {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: clamp(12px, 1.5vw, 15px);
+}
+
+.footer__labels {
+  font-weight: 400;
+}
+
+.footer__values {
+  font-weight: 700;
+}
+
+.footer__newsletter-link {
+  font-size: clamp(11px, 1.4vw, 13px);
+  font-weight: 700;
+  text-transform: uppercase;
+  border-bottom: 2px solid #000;
+  display: inline-block;
+  padding-bottom: 2px;
+}
+
+/* --- Banda Nera --- */
+.footer__black {
+  background: #000;
+  color: #fff;
+  padding: clamp(20px, 4vw, 40px) clamp(16px, 5vw, 56px);
+}
+
+.footer__logo-col {
+  display: flex;
+  align-items: flex-start;
+  /* Logo in alto */
+}
+
+.footer__collab-col {
+  justify-content: flex-end;
+  /* Spinge il contenuto in basso */
+}
+
+.footer__collab-content {
+  height: 50%;
+  /* Occupa solo la metà inferiore */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 8px;
+}
+
+.footer__collab-title {
+  font-size: clamp(14px, 2vw, 18px);
+  font-weight: 700;
+}
+
+.footer__collab-body {
+  font-size: clamp(11px, 1.5vw, 14px);
+  color: #ccc;
+}
+
+.footer__collab-link {
+  color: #FFFF00;
+  text-decoration: underline;
+}
+
+.footer__tagline {
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+  .footer__container {
+    min-height: 220px;
+    /* Più altezza su mobile per evitare overlay */
   }
 
-  .footer__collab {
-    flex: 1;
-    text-align: right;
-    align-items: flex-end;
+  /* Assicuriamo che il testo non strabordi mai */
+  .footer__content,
+  .footer__collab-content {
+    padding-right: 10px;
+    word-break: break-word;
+  }
+
+  .footer__info-group {
+    gap: 10px;
   }
 }

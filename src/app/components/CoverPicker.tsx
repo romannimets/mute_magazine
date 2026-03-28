@@ -8,15 +8,13 @@ const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 interface CoverPickerProps {
     /** URL corrente della copertina (esistente o appena caricata) */
     currentUrl: string;
-    /** Colore overlay da applicare all'anteprima */
-    overlayColor?: string;
     /** Callback: notifica il parent del nuovo URL (stringa vuota = rimossa) */
     onChange: (url: string) => void;
 }
 
 type Mode = "upload" | "url";
 
-export default function CoverPicker({ currentUrl, overlayColor, onChange }: CoverPickerProps) {
+export default function CoverPicker({ currentUrl, onChange }: CoverPickerProps) {
     const [mode, setMode] = useState<Mode>("upload");
     const [uploading, setUploading] = useState(false);
     const [preview, setPreview] = useState<string | null>(null);
@@ -88,9 +86,9 @@ export default function CoverPicker({ currentUrl, overlayColor, onChange }: Cove
                         alt="cover"
                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
                     />
-                    {overlayColor && (
-                        <div style={{ position: "absolute", inset: 0, background: overlayColor, opacity: 0.5, pointerEvents: "none" }} />
-                    )}
+                    {
+                        <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }} />
+                    }
                     <button
                         type="button"
                         onClick={clear}
