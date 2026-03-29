@@ -24,4 +24,11 @@ export const categoryIcons: Record<string, string> = {
   sottofondo: "/sottofondo.png",
 };
 
+export const categoryColors: Record<string, string> = {
+  risonanze: "#FFFF00",
+  voci: "#df1968",
+  sottofondo: "#86DF2C",
+
+};
+
 export const DEFAULT_CATEGORY = "risonanze";

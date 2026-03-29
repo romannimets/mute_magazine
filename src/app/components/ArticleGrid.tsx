@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArticleCard } from "@/data/articles";
+import { ArticleCard, categoryColors } from "@/data/articles";
 import { fetchArticles } from "@/lib/fetchArticles";
 import { readingTime } from "@/lib/readingTime";
 
@@ -32,14 +32,15 @@ export default function ArticleGrid({ category }: Props) {
       .finally(() => setLoading(false));
   }, [category]);
 
-  const titleColor = "#000";
   const label = CATEGORY_LABELS[category] ?? category;
+  const bgColor = categoryColors[category] ?? "#fff";
 
   return (
     <section style={{ background: "#fff", minHeight: "100vh" }}>
 
-      {/* Header categoria */}
+      {/* Header categoria — sfondo del colore della categoria */}
       <div style={{
+        background: bgColor,
         padding: "clamp(40px, 8vw, 72px) clamp(16px, 5vw, 48px) clamp(28px, 5vw, 44px)",
       }}>
         <h1 style={{
@@ -48,7 +49,7 @@ export default function ArticleGrid({ category }: Props) {
           fontWeight: 700,
           lineHeight: 0.95,
           margin: 0,
-          color: titleColor,
+          color: "#000",
         }}>
           {label}
         </h1>
@@ -73,7 +74,6 @@ export default function ArticleGrid({ category }: Props) {
             >
               <article style={{ display: "flex", flexDirection: "column", borderBottom: "1px solid #f0f0f0" }}>
 
-                {/* Immagine — nessun overlay colore */}
                 <div style={{ position: "relative", width: "100%", aspectRatio: "4 / 3", overflow: "hidden" }}>
                   <Image
                     src={article.cover}
@@ -84,7 +84,6 @@ export default function ArticleGrid({ category }: Props) {
                   />
                 </div>
 
-                {/* Testo — più aria */}
                 <div style={{
                   padding: "clamp(18px, 4vw, 28px) clamp(16px, 4.5vw, 28px) clamp(20px, 4vw, 32px)",
                 }}>

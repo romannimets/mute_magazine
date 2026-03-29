@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArticleCard } from "@/data/articles";
 import { fetchArticles } from "@/lib/fetchArticles";
+import { readingTime } from "@/lib/readingTime";
 
 const CATEGORY_LABELS: Record<string, string> = {
   risonanze: "Risonanze",
@@ -71,129 +72,117 @@ export default function UltimiArticoliPage() {
       }}>
         <h1 style={{
           ...M,
-          fontSize: "clamp(32px, 7vw, 64px)",
+          fontSize: "clamp(40px, 10vw, 88px)",
           fontWeight: 700,
-          lineHeight: 1,
+          lineHeight: 0.95,
           margin: 0,
         }}>
           Tutti gli articoli
         </h1>
       </div>
 
-      {/* Lista */}
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      {loading && (
+        <p style={{ ...G, color: "#aaa", padding: "40px clamp(16px,5vw,48px)" }}>
+          Caricamento...
+        </p>
+      )}
 
-        {loading && (
-          <p style={{ ...G, color: "#aaa", padding: "40px clamp(16px,5vw,48px)" }}>
-            Caricamento...
-          </p>
-        )}
+      {!loading && visible.length === 0 && (
+        <p style={{ ...G, color: "#aaa", padding: "40px clamp(16px,5vw,48px)" }}>
+          Nessun articolo trovato.
+        </p>
+      )}
 
-        {!loading && visible.length === 0 && (
-          <p style={{ ...G, color: "#aaa", padding: "40px clamp(16px,5vw,48px)" }}>
-            Nessun articolo trovato.
-          </p>
-        )}
+      {/* Griglia 2 colonne — identica ad ArticleGrid */}
+      <div
+        className="article-grid"
+        style={{ display: "grid", gridTemplateColumns: "repeat(1, 1fr)", gap: 0 }}
+      >
+        {visible.map((article) => {
+          const rt = readingTime(article.content);
+          return (
+            <Link
+              key={article.id}
+              href={`/articoli/${article.category}/${article.id}`}
+              style={{ textDecoration: "none", color: "inherit", display: "block" }}
+            >
+              <article style={{ display: "flex", flexDirection: "column", borderBottom: "1px solid #f0f0f0" }}>
 
-        {visible.map((article) => (
-          <Link
-            key={article.id}
-            href={`/articoli/${article.category}/${article.id}`}
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-              display: "block",
-              borderBottom: "1px solid #f0f0f0",
-            }}
-          >
-            <article style={{ display: "flex", flexDirection: "column" }}>
-
-              {/* Immagine */}
-              <div style={{
-                position: "relative",
-                width: "100%",
-                paddingTop: "45%",
-                overflow: "hidden",
-              }}>
-                {article.cover ? (
-                  <Image
-                    src={article.cover}
-                    alt={article.title}
-                    fill
-                    sizes="100vw"
-                    style={{ objectFit: "cover" }}
-                  />
-                ) : (
-                  <div style={{ position: "absolute", inset: 0, background: "#e8e8e8" }} />
-                )}
-              </div>
-
-              {/* Testo */}
-              <div style={{
-                padding: "clamp(14px, 3vw, 28px) clamp(16px, 5vw, 48px) clamp(16px, 3.5vw, 28px)",
-                display: "flex",
-                flexDirection: "column",
-                gap: "clamp(6px, 1.5vw, 10px)",
-              }}>
-                <h2 style={{
-                  ...M,
-                  margin: 0,
-                  fontSize: "clamp(20px, 4.5vw, 36px)",
-                  fontWeight: 700,
-                  lineHeight: 1.2,
-                }}>
-                  {article.title}
-                </h2>
-
-                <span style={{
-                  ...G,
-                  fontSize: "clamp(11px, 2vw, 13px)",
-                  color: "#777"
-                }}>
-                  {article.author}
-                </span>
-
-                <div style={{
-                  display: "flex",
-                  alignItems: "flex-end",
-                  justifyContent: "space-between",
-                  marginTop: "clamp(4px, 1vw, 8px)",
-                }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                    <span style={{
-                      ...G,
-                      fontSize: "clamp(10px, 2vw, 12px)",
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
-                    }}>
-                      {CATEGORY_LABELS[article.category] ?? article.category}
-                    </span>
-
-                    <span style={{
-                      ...G,
-                      fontSize: "clamp(9px, 1.8vw, 11px)",
-                      color: "#aaa"
-                    }}>
-                      {formatDate(article.date)}
-                    </span>
-                  </div>
-
-                  {CATEGORY_ICONS[article.category] && (
+                {/* Immagine */}
+                <div style={{ position: "relative", width: "100%", aspectRatio: "4 / 3", overflow: "hidden" }}>
+                  {article.cover ? (
                     <Image
-                      src={CATEGORY_ICONS[article.category]}
-                      alt={article.category}
-                      width={36}
-                      height={36}
-                      style={{ objectFit: "contain", flexShrink: 0 }}
+                      src={article.cover}
+                      alt={article.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      style={{ objectFit: "cover" }}
                     />
+                  ) : (
+                    <div style={{ position: "absolute", inset: 0, background: "#e8e8e8" }} />
                   )}
                 </div>
-              </div>
 
-            </article>
-          </Link>
-        ))}
+                {/* Testo */}
+                <div style={{
+                  padding: "clamp(18px, 4vw, 28px) clamp(16px, 4.5vw, 28px) clamp(20px, 4vw, 32px)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "clamp(6px, 1.5vw, 10px)",
+                }}>
+                  <h2 style={{
+                    ...M,
+                    margin: 0,
+                    fontSize: "clamp(20px, 5vw, 28px)",
+                    fontWeight: 700,
+                    lineHeight: 1.2,
+                    color: "#111",
+                  }}>
+                    {article.title}
+                  </h2>
+
+                  <span style={{ ...G, fontSize: "clamp(11px, 2vw, 13px)", color: "#777" }}>
+                    {article.author}
+                  </span>
+
+                  <div style={{
+                    display: "flex",
+                    alignItems: "flex-end",
+                    justifyContent: "space-between",
+                    marginTop: "clamp(4px, 1vw, 8px)",
+                  }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                      <span style={{
+                        ...G,
+                        fontSize: "clamp(10px, 2vw, 12px)",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                      }}>
+                        {CATEGORY_LABELS[article.category] ?? article.category}
+                      </span>
+                      <span style={{ ...G, fontSize: "clamp(9px, 1.8vw, 11px)", color: "#aaa", display: "flex", gap: 6, alignItems: "center" }}>
+                        {formatDate(article.date)}
+                        {rt && <><span>·</span><span>{rt}</span></>}
+                      </span>
+                    </div>
+
+                    {CATEGORY_ICONS[article.category] && (
+                      <Image
+                        src={CATEGORY_ICONS[article.category]}
+                        alt={article.category}
+                        width={36}
+                        height={36}
+                        style={{ objectFit: "contain", flexShrink: 0 }}
+                      />
+                    )}
+                  </div>
+                </div>
+
+              </article>
+            </Link>
+          );
+        })}
       </div>
 
       {/* Load more */}
