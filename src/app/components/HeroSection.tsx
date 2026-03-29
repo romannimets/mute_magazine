@@ -57,7 +57,7 @@ export default function HeroSection() {
                     }}>
                         <Image
                             src="/homepage_top_bkg.jpg"
-                            alt="Mute Magazine"
+                            alt="Mute Rivista"
                             fill
                             priority
                             sizes="100vw"

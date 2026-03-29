@@ -251,7 +251,7 @@ export default function UltimiArticoli() {
           borderBottom: "1px solid #111",
           paddingBottom: "1px",
           whiteSpace: "nowrap",
-          fontFamily: "var(--font-mattone), Arial, sans-serif",
+          fontFamily: "'EB Garamond', 'Garamond', Georgia, serif",
         }}>
           Vedi tutto →
         </Link>

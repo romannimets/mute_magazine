@@ -13,7 +13,7 @@ const mattone = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Mute Magazine",
+  title: "Mute Rivista",
   description: "Art & Culture Magazine",
 };
 
