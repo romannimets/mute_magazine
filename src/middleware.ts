@@ -6,7 +6,20 @@ export function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl
     const method = req.method
 
-    // Rotte login/logout sempre pubbliche
+    // ── Maintenance mode — blocca tutto il sito tranne admin ──────────────────
+    if (process.env.MAINTENANCE_MODE === 'true') {
+        const isAllowed =
+            pathname === '/admin/login' ||
+            pathname.startsWith('/admin') ||
+            pathname.startsWith('/api/') ||
+            pathname.startsWith('/_next') ||
+            pathname.startsWith('/favicon')
+        if (!isAllowed) {
+            return NextResponse.redirect(new URL('/admin/login', req.url))
+        }
+    }
+
+    // ── Rotte sempre pubbliche ─────────────────────────────────────────────────
     if (
         pathname === '/admin/login' ||
         pathname === '/api/admin/login' ||
@@ -15,7 +28,7 @@ export function middleware(req: NextRequest) {
         return NextResponse.next()
     }
 
-    // Iscrizione newsletter (POST) pubblica
+    // Iscrizione newsletter pubblica
     if (pathname === '/api/newsletter' && method === 'POST') {
         return NextResponse.next()
     }
@@ -25,6 +38,7 @@ export function middleware(req: NextRequest) {
         return NextResponse.next()
     }
 
+    // ── Rotte protette ─────────────────────────────────────────────────────────
     const isAdminPage = pathname.startsWith('/admin')
     const isProtectedApi =
         (pathname.startsWith('/api/articles') && method !== 'GET') ||
@@ -36,32 +50,18 @@ export function middleware(req: NextRequest) {
 
     if (!isAdminPage && !isProtectedApi) return NextResponse.next()
 
+    // Check sessione
     const cookie = req.cookies.get('admin_session')?.value
     if (cookie === ADMIN_SECRET) return NextResponse.next()
 
+    // Non autenticato: API → 401, pagine → redirect login
     if (pathname.startsWith('/api/')) {
         return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
-    }
-
-    // Maintenance mode — blocca tutto tranne admin
-    if (process.env.MAINTENANCE_MODE === 'true') {
-        const isAdmin = pathname.startsWith('/admin') || pathname.startsWith('/api/')
-        if (!isAdmin) {
-            return NextResponse.redirect(new URL('/admin/login', req.url))
-        }
     }
 
     return NextResponse.redirect(new URL('/admin/login', req.url))
 }
 
 export const config = {
-    matcher: [
-        '/admin/:path*',
-        '/api/articles/:path*',
-        '/api/newsletter/:path*',
-        '/api/upload/:path*',
-        '/api/media/:path*',
-        '/api/admin/:path*',
-        '/api/db-stats',
-    ],
+    matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }
