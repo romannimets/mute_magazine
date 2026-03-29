@@ -6,7 +6,7 @@ export function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl
     const method = req.method
 
-    // ── Maintenance mode — blocca tutto il sito tranne admin ──────────────────
+    // ── Maintenance mode — blocca tutto il sito tranne admin autenticato ──────
     if (process.env.MAINTENANCE_MODE === 'true') {
         const isAllowed =
             pathname === '/admin/login' ||
@@ -14,7 +14,12 @@ export function middleware(req: NextRequest) {
             pathname.startsWith('/api/') ||
             pathname.startsWith('/_next') ||
             pathname.startsWith('/favicon')
+
         if (!isAllowed) {
+            // Se è loggato come admin può navigare liberamente anche in manutenzione
+            const cookie = req.cookies.get('admin_session')?.value
+            if (cookie === ADMIN_SECRET) return NextResponse.next()
+
             return NextResponse.redirect(new URL('/admin/login', req.url))
         }
     }
