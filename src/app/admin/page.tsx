@@ -185,6 +185,7 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [expandedPanels, setExpandedPanels] = useState<CategoryPanelState>({});
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [togglingId, setTogglingId] = useState<string | null>(null);
     const [showDevStats, setShowDevStats] = useState(false);
 
     useEffect(() => {
@@ -231,6 +232,22 @@ export default function AdminDashboard() {
             setEditingManifesto(false);
         } catch { alert("Errore salvataggio"); }
         finally { setSavingManifesto(false); }
+    };
+
+    const handleToggleHidden = async (article: ArticleCard) => {
+        setTogglingId(article.id);
+        try {
+            const res = await fetch(`/api/articles/${article.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ hidden: !article.hidden }),
+            });
+            if (!res.ok) throw new Error();
+            setArticles((prev) =>
+                prev.map((a) => a.id === article.id ? { ...a, hidden: !a.hidden } : a)
+            );
+        } catch { alert("Errore aggiornamento visibilità"); }
+        finally { setTogglingId(null); }
     };
 
     const handleDelete = async (article: ArticleCard) => {
@@ -367,22 +384,40 @@ export default function AdminDashboard() {
                                                     <th style={thStyle}>Titolo</th>
                                                     <th style={thStyle}>Autore</th>
                                                     <th style={thStyle}>Data</th>
+                                                    <th style={thStyle}>Visibilità</th>
                                                     <th style={thStyle}>Azioni</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {catArticles.map((a) => {
                                                     const isDeleting = deletingId === a.id;
+                                                    const isToggling = togglingId === a.id;
                                                     return (
                                                         <tr
                                                             key={a.id}
-                                                            style={{ borderBottom: "1px solid #eee", opacity: isDeleting ? 0.5 : 1, transition: "opacity 0.3s" }}
-                                                            onMouseEnter={(e) => { if (!isDeleting) e.currentTarget.style.background = "#f9f9f9"; }}
-                                                            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                                                            style={{ borderBottom: "1px solid #eee", opacity: isDeleting ? 0.5 : 1, transition: "opacity 0.3s", background: a.hidden ? "#fffbf0" : "transparent" }}
+                                                            onMouseEnter={(e) => { if (!isDeleting) e.currentTarget.style.background = a.hidden ? "#fff8e0" : "#f9f9f9"; }}
+                                                            onMouseLeave={(e) => { e.currentTarget.style.background = a.hidden ? "#fffbf0" : "transparent"; }}
                                                         >
-                                                            <td style={tdStyle}><strong>{a.title}</strong></td>
-                                                            <td style={tdStyle}>{a.author}</td>
-                                                            <td style={tdStyle}>{new Date(a.date).toLocaleDateString("it-IT")}</td>
+                                                            <td style={tdStyle}>
+                                                                <strong style={{ color: a.hidden ? "#aaa" : "#111" }}>{a.title}</strong>
+                                                                {a.hidden && <span style={{ marginLeft: 6, fontSize: 11, color: "#e07000", fontWeight: 700, letterSpacing: "0.05em" }}>NASCOSTO</span>}
+                                                            </td>
+                                                            <td style={{ ...tdStyle, color: a.hidden ? "#bbb" : "inherit" }}>{a.author}</td>
+                                                            <td style={{ ...tdStyle, color: a.hidden ? "#bbb" : "inherit" }}>{new Date(a.date).toLocaleDateString("it-IT")}</td>
+                                                            <td style={tdStyle}>
+                                                                <button
+                                                                    onClick={() => handleToggleHidden(a)}
+                                                                    disabled={isToggling}
+                                                                    title={a.hidden ? "Rendi visibile" : "Nascondi"}
+                                                                    style={{
+                                                                        border: "none", background: "none", cursor: isToggling ? "not-allowed" : "pointer",
+                                                                        fontSize: 18, lineHeight: 1, padding: 2, opacity: isToggling ? 0.5 : 1,
+                                                                    }}
+                                                                >
+                                                                    {a.hidden ? "🙈" : "👁️"}
+                                                                </button>
+                                                            </td>
                                                             <td style={tdStyle}>
                                                                 <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                                                                     <Link href={`/admin/${a.id}`} style={{ color: "#0066cc", fontWeight: 500, fontSize: "clamp(12px, 3vw, 14px)" }}>

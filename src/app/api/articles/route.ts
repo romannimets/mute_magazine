@@ -16,7 +16,14 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
 
-    const query = category ? { category } : {};
+    // Gli articoli nascosti sono visibili solo all'admin (cookie di sessione presente)
+    const adminCookie = req.cookies.get("admin_session")?.value;
+    const isAdmin = adminCookie === process.env.ADMIN_SECRET;
+
+    const query: Record<string, any> = {};
+    if (category) query.category = category;
+    if (!isAdmin) query.hidden = { $ne: true }; // pubblico: escludi nascosti
+
     const articles = await collection.find(query).toArray();
 
     return NextResponse.json(articles);
@@ -32,7 +39,7 @@ export async function GET(req: NextRequest) {
 /**
  * POST /api/articles
  * Crea nuovo articolo
- * Body: { title, subtitle?, author, category, cover, content }
+ * Body: { title, subtitle, author, category, cover, content }
  */
 export async function POST(req: Request) {
   try {
