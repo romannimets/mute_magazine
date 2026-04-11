@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const mattone = localFont({
   src: "../../public/Mattone-150.otf",
@@ -29,6 +30,7 @@ export default function RootLayout({
         <Navbar />
         {children}
         <Footer />
+        <SpeedInsights />  {/* VERCEL INSIGHTS */}
       </body>
     </html>
   );
