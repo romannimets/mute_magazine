@@ -153,7 +153,7 @@ export default function UltimiArticoliPage() {
                   }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <span style={{
-                        ...G,
+                        ...M,
                         fontSize: "clamp(10px, 2vw, 12px)",
                         fontWeight: 700,
                         textTransform: "uppercase",
