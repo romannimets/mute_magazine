@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import GoogleAnalytics from "./components/GoogleAnalytics";
 
 const mattone = localFont({
   src: "../../public/Mattone-150.otf",
@@ -26,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="it">
       <body className={mattone.variable}>
+        <GoogleAnalytics />
         <ScrollToTop />
         <Navbar />
         {children}

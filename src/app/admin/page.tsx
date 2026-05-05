@@ -6,6 +6,7 @@ import { ArticleCard, categoryLabels } from "@/data/articles";
 import { fetchArticles } from "@/lib/fetchArticles";
 import MediaStatsWidget from "@/app/components/MediaStatsWidget";
 import MongoStatsWidget from "@/app/components/MongoStatsWidget";
+import AnalyticsWidget from "../components/AnalyticsWidget";
 
 type CategoryPanelState = Record<string, boolean>;
 
@@ -341,6 +342,7 @@ export default function AdminDashboard() {
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, padding: 16, background: "#fff" }}>
                         <MediaStatsWidget />
                         <MongoStatsWidget />
+                        <AnalyticsWidget />
                     </div>
                 )}
             </div>

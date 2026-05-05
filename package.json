@@ -14,6 +14,7 @@
     "@editorjs/image": "^2.10.3",
     "@editorjs/list": "^2.0.9",
     "@editorjs/paragraph": "^2.11.7",
+    "@google-analytics/data": "^5.2.2",
     "@vercel/speed-insights": "^2.0.0",
     "bcryptjs": "^2.4.3",
     "crypto-js": "^4.2.0",
