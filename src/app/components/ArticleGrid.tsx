@@ -27,7 +27,13 @@ export default function ArticleGrid({ category }: Props) {
 
   useEffect(() => {
     fetchArticles(category)
-      .then(setArticles)
+      .then((data) => {
+        const filtered = data.filter((a) => a.category !== "manifesto");
+        const sorted = [...filtered].sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+        setArticles(sorted);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [category]);
